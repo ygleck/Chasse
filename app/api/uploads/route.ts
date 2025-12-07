@@ -49,23 +49,48 @@ export async function POST(request: NextRequest) {
  * GET /api/uploads
  * Récupère les soumissions (mock pour Pages)
  */
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const { searchParams } = new URL(request.url);
+    const type = searchParams.get('type');
+    const status = searchParams.get('status');
+
     // Mock data
-    const mockUploads = [
+    const mockData = [
       {
         id: 'demo-1',
         type: 'souvenir',
         title: 'Belle journée au camp',
         description: 'Magnifique temps!',
+        category: 'pique-nique',
         uploaderName: 'Jean',
+        eventDate: '2024-06-15',
         status: 'approved',
-        photos: [],
+        photos: [{ thumbnailPath: '/placeholder.jpg' }],
+        createdAt: new Date(),
+      },
+      {
+        id: 'demo-2',
+        type: 'record',
+        title: 'Magnifique cerf',
+        species: 'cerf',
+        weight: 120,
+        points: 85,
+        huntDate: '2024-09-10',
+        region: 'Ardennes',
+        uploaderName: 'Pierre',
+        status: 'approved',
+        photos: [{ thumbnailPath: '/placeholder.jpg' }],
         createdAt: new Date(),
       },
     ];
 
-    return NextResponse.json(mockUploads);
+    // Filter by type and status if provided
+    let filtered = mockData;
+    if (type) filtered = filtered.filter((item: any) => item.type === type);
+    if (status) filtered = filtered.filter((item: any) => item.status === status);
+
+    return NextResponse.json(filtered);
   } catch (error) {
     console.error('Get uploads error:', error);
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });

@@ -117,7 +117,7 @@ export default function Records() {
               >
                 <option value="all">Toutes les régions</option>
                 {regions.map((r) => (
-                  <option key={r} value={r}>
+                  <option key={r || 'unknown'} value={r || ''}>
                     {r}
                   </option>
                 ))}

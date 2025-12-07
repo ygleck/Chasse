@@ -13,7 +13,7 @@ interface TrophyCardProps {
 }
 
 export function TrophyCard({
-  id,
+  id: _id,
   title,
   image,
   species,

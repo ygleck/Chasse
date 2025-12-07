@@ -88,7 +88,7 @@ export default function Upload() {
       const reader = new FileReader();
       reader.onload = (e) => {
         if (e.target?.result) {
-          setPreviewUrls((prev) => [...prev, e.target.result as string]);
+          setPreviewUrls((prev) => [...prev, e.target!.result as string]);
         }
       };
       reader.readAsDataURL(file);

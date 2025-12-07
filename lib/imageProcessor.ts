@@ -1,7 +1,6 @@
 import sharp from 'sharp';
 import fs from 'fs/promises';
 import path from 'path';
-import os from 'os';
 
 /**
  * Traitement des images avec sharp
@@ -39,7 +38,7 @@ export async function processImage(
     const thumbnailPath = path.join(UPLOAD_DIR, thumbnailFileName);
 
     // Process with sharp: convert to WebP and remove EXIF
-    const image = sharp(file).withMetadata(false);
+    const image = sharp(file);
 
     // Write main image (WebP format, removes EXIF automatically)
     await image

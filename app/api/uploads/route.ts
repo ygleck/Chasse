@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
           Buffer.from(buffer),
           photo.name
         );
-        processedPhotos.push(result);
+        processedPhotos.push({ path: result.webpPath, thumbnailPath: result.thumbnailPath });
       } catch (error) {
         console.error('Image processing failed:', error);
         return NextResponse.json(
@@ -79,7 +79,7 @@ export async function POST(request: NextRequest) {
       status: 'pending', // Always pending until admin approves
       photos: {
         create: processedPhotos.map((photo) => ({
-          path: photo.webpPath,
+          path: photo.path,
           thumbnailPath: photo.thumbnailPath,
         })),
       },

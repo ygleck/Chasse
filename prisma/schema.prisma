@@ -1,0 +1,53 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model UserUpload {
+  id            String   @id @default(cuid())
+  type          String   // "souvenir" or "record"
+  status        String   @default("pending") // "pending" | "approved" | "rejected"
+  title         String
+  description   String
+  uploaderName  String
+  uploaderEmail String?
+  photos        Photo[]
+  
+  // Common fields
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  // Record-specific fields
+  species       String?
+  huntDate      DateTime?
+  region        String?
+  weight        Float?
+  weightUnit    String?  @default("lb")
+  points        Int?
+  weaponType    String?
+  caliber       String?
+  
+  // Souvenir-specific fields
+  eventDate     DateTime?
+  category      String?  // "camp", "trip", "trail cam", "aménagement", etc.
+  participants  String?
+  
+  // Admin notes
+  rejectionReason String?
+}
+
+model Photo {
+  id            String   @id @default(cuid())
+  uploadId      String
+  upload        UserUpload @relation(fields: [uploadId], references: [id], onDelete: Cascade)
+  path          String   // Path to webp file
+  thumbnailPath String   // Path to thumbnail
+  createdAt     DateTime @default(now())
+}

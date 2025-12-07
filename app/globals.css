@@ -1,0 +1,46 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom hunting theme styles */
+body {
+  @apply bg-gradient-to-b from-slate-50 to-gray-100;
+}
+
+/* Wood texture-like effect for headers */
+.hunting-header {
+  @apply bg-gradient-to-b from-hunting-dark to-hunting-light shadow-lg;
+}
+
+/* Card styling for trophy/memory displays */
+.hunting-card {
+  @apply bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 border border-hunting-accent/20;
+}
+
+/* Badge styling */
+.hunting-badge {
+  @apply inline-block px-3 py-1 bg-hunting-orange text-white rounded-full text-sm font-semibold;
+}
+
+/* Button styling */
+.btn-primary {
+  @apply px-6 py-2 bg-hunting-orange text-white rounded-lg font-semibold hover:bg-orange-700 transition-colors;
+}
+
+.btn-secondary {
+  @apply px-6 py-2 bg-hunting-dark text-white rounded-lg font-semibold hover:bg-hunting-light transition-colors;
+}
+
+/* Gallery grid */
+.gallery-grid {
+  @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6;
+}
+
+/* Record trophy card */
+.trophy-card {
+  @apply hunting-card overflow-hidden hover:scale-105 transition-transform duration-300;
+}

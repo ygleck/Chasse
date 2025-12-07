@@ -80,7 +80,7 @@ export default function Home() {
               <div className="hunting-card p-6">
                 <h3 className="font-bold text-lg text-red-600 mb-3">✗ Non accepté</h3>
                 <ul className="space-y-2 text-sm text-gray-700">
-                  <li>✗ Armes pointées sur quelqu'un</li>
+                  <li>✗ Armes pointées sur quelqu’un</li>
                   <li>✗ Alcool + armes de façon dangereuse</li>
                   <li>✗ Contenu gore gratuit</li>
                   <li>✗ Infos sensibles (emails, adresses)</li>

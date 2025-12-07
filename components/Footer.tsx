@@ -1,3 +1,5 @@
+import Link from 'next/link';
+
 /**
  * Footer component
  */
@@ -15,9 +17,9 @@ export function Footer() {
           <div>
             <h3 className="font-bold text-lg mb-2">Navigation</h3>
             <ul className="text-sm space-y-1">
-              <li><a href="/" className="hover:text-hunting-orange transition-colors">Accueil</a></li>
-              <li><a href="/galerie" className="hover:text-hunting-orange transition-colors">Galerie</a></li>
-              <li><a href="/records" className="hover:text-hunting-orange transition-colors">Hall of Fame</a></li>
+              <li><Link href="/" className="hover:text-hunting-orange transition-colors">Accueil</Link></li>
+              <li><Link href="/galerie" className="hover:text-hunting-orange transition-colors">Galerie</Link></li>
+              <li><Link href="/records" className="hover:text-hunting-orange transition-colors">Hall of Fame</Link></li>
             </ul>
           </div>
           <div>

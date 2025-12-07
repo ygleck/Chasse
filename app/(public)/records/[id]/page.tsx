@@ -1,7 +1,7 @@
-'use client';
-
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
+import Link from 'next/link';
+import Image from 'next/image';
 
 interface DetailRecord {
   id: string;
@@ -53,21 +53,23 @@ export default async function RecordDetail({ params }: { params: Promise<Params>
       <Header />
       <main className="min-h-screen">
         <section className="container mx-auto px-4 py-12">
-          <a
+          <Link
             href="/records"
             className="text-hunting-orange font-semibold hover:underline mb-8 inline-block"
           >
             ← Retour au Hall of Fame
-          </a>
+          </Link>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             {/* Photos */}
             <div>
               {record.photos.length > 0 && (
                 <div className="hunting-card overflow-hidden">
-                  <img
+                  <Image
                     src={record.photos[0].path}
                     alt={record.title}
+                    width={1200}
+                    height={900}
                     className="w-full h-96 object-cover"
                   />
                 </div>

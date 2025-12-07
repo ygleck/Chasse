@@ -1,3 +1,4 @@
+import Image from 'next/image';
 /**
  * Card component for displaying memory (souvenir)
  */
@@ -21,9 +22,11 @@ export function MemoryCard({
   return (
     <div className="trophy-card cursor-pointer">
       <div className="relative w-full h-64 overflow-hidden bg-gray-200">
-        <img
+        <Image
           src={image}
           alt={title}
+          width={800}
+          height={600}
           className="w-full h-full object-cover"
         />
       </div>

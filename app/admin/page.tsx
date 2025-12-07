@@ -2,6 +2,7 @@
 
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
+import Image from 'next/image';
 import { useState, useEffect } from 'react';
 
 interface Upload {
@@ -125,7 +126,7 @@ export default function AdminPage() {
             <p className="text-sm text-blue-800">
               Cette page est actuellement accessible en développement sans authentification.
               <br />
-              <strong>TODO:</strong> Brancher Cloudflare Access, JWT, ou un autre système d'auth avant de mettre en production.
+              <strong>TODO:</strong> Brancher Cloudflare Access, JWT, ou un autre système d’auth avant de mettre en production.
             </p>
           </div>
 
@@ -241,10 +242,12 @@ export default function AdminPage() {
                       <h3 className="font-bold text-hunting-dark mb-3">Photos</h3>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         {selectedUpload.photos.map((photo) => (
-                          <img
+                          <Image
                             key={photo.id}
                             src={photo.path}
                             alt="Soumission"
+                            width={800}
+                            height={600}
                             className="w-full h-40 object-cover rounded-lg"
                           />
                         ))}

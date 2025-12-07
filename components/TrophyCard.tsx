@@ -1,3 +1,4 @@
+import Image from 'next/image';
 /**
  * Card component for displaying trophy/record
  */
@@ -25,9 +26,11 @@ export function TrophyCard({
   return (
     <div className="trophy-card cursor-pointer">
       <div className="relative w-full h-64 overflow-hidden bg-gray-200">
-        <img
+        <Image
           src={image}
           alt={title}
+          width={800}
+          height={600}
           className="w-full h-full object-cover"
         />
         <div className="absolute top-0 left-0 bg-hunting-orange text-white px-3 py-1 m-2 rounded">

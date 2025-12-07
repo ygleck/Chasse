@@ -1,3 +1,4 @@
+import Image from 'next/image';
 'use client';
 
 import { Header } from '@/components/Header';
@@ -268,7 +269,7 @@ export default function Upload() {
                 </h3>
                 <ul className="text-sm text-gray-700 space-y-1">
                   <li>✓ Visages: acceptés (consentement requis)</li>
-                  <li>✗ Armes pointées sur quelqu'un</li>
+                    <li>✗ Armes pointées sur quelqu’un</li>
                   <li>✗ Alcool + armes de façon dangereuse</li>
                   <li>✗ Contenu gore gratuit</li>
                   <li>✗ Infos personnelles sensibles (emails, adresses)</li>
@@ -308,11 +309,11 @@ export default function Upload() {
                   <label className="block text-sm font-semibold text-hunting-dark mb-2">
                     Description
                   </label>
-                  <textarea
+                    <textarea
                     name="description"
                     value={formData.description}
                     onChange={handleChange}
-                    placeholder="Racontez l'histoire..."
+                    placeholder="Racontez l’histoire..."
                     rows={4}
                     className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-hunting-orange"
                   />
@@ -374,7 +375,7 @@ export default function Upload() {
 
                       <div>
                         <label className="block text-sm font-semibold text-hunting-dark mb-2">
-                          Date de l'événement
+                          Date de l’événement
                         </label>
                         <input
                           type="date"
@@ -487,7 +488,7 @@ export default function Upload() {
 
                       <div>
                         <label className="block text-sm font-semibold text-hunting-dark mb-2">
-                          Type d'arme
+                          Type d’arme
                         </label>
                         <select
                           name="weaponType"
@@ -556,9 +557,11 @@ export default function Upload() {
                     <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                       {previewUrls.map((url, index) => (
                         <div key={index} className="relative">
-                          <img
+                          <Image
                             src={url}
                             alt={`Preview ${index}`}
+                            width={200}
+                            height={200}
                             className="w-full h-24 object-cover rounded-lg"
                           />
                           <button

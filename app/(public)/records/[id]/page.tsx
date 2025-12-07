@@ -32,8 +32,9 @@ async function getRecord(id: string): Promise<DetailRecord | null> {
   }
 }
 
-export default async function RecordDetail({ params }: { params: Params }) {
-  const record = await getRecord(params.id);
+export default async function RecordDetail({ params }: { params: Promise<Params> }) {
+  const { id } = await params;
+  const record = await getRecord(id);
 
   if (!record) {
     return (

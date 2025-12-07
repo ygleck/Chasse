@@ -136,7 +136,6 @@ export default function Galerie() {
               {filteredMemories.map((memory) => (
                 <MemoryCard
                   key={memory.id}
-                  id={memory.id}
                   title={memory.title}
                   image={
                     memory.photos[0]?.thumbnailPath || '/placeholder.jpg'

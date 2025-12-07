@@ -8,7 +8,6 @@ interface MemoryCardProps {
   category: string;
   uploaderName: string;
   eventDate?: string;
-  id: string;
 }
 
 export function MemoryCard({
@@ -17,7 +16,6 @@ export function MemoryCard({
   category,
   uploaderName,
   eventDate,
-  id,
 }: MemoryCardProps) {
   return (
     <div className="trophy-card cursor-pointer">

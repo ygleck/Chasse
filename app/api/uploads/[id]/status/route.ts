@@ -1,54 +1,25 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { NextResponse } from 'next/server';
 
-/**
- * PATCH /api/uploads/[id]/status
- * Met à jour le statut d'une soumission (admin only)
- * 
- * TODO: Ajouter authentification (Cloudflare Access, JWT, etc.)
- * Pour l'instant, accès ouvert en développement
- */
 export async function PATCH(
-  request: NextRequest,
+  request: unknown,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    // TODO: Add auth check here
-    // const isAdmin = await checkAdminAuth(request);
-    // if (!isAdmin) return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+    await params;
+    const body = await (request as any).json();
+    const { status } = body;
 
-    const { id } = await params;
-    const body = await request.json();
-    const { status, rejectionReason } = body;
-
-    if (!['approved', 'rejected', 'pending'].includes(status)) {
-      return NextResponse.json(
-        { error: 'Statut invalide' },
-        { status: 400 }
-      );
+    if (!['pending', 'approved', 'rejected'].includes(status)) {
+      return NextResponse.json({ error: 'Statut invalide' }, { status: 400 });
     }
-
-    const updateData: any = { status };
-    if (status === 'rejected' && rejectionReason) {
-      updateData.rejectionReason = rejectionReason;
-    }
-
-    const updated = await prisma.userUpload.update({
-      where: { id },
-      data: updateData,
-      include: { photos: true },
-    });
 
     return NextResponse.json({
       success: true,
-      message: `Statut mis à jour: ${status}`,
-      upload: updated,
+      message: 'Statut mis à jour (mock)',
+      status,
     });
   } catch (error) {
-    console.error('Update status error:', error);
-    return NextResponse.json(
-      { error: 'Erreur serveur' },
-      { status: 500 }
-    );
+    console.error('Status update error:', error);
+    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }

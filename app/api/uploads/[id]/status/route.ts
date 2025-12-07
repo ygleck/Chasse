@@ -10,14 +10,14 @@ import { prisma } from '@/lib/prisma';
  */
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // TODO: Add auth check here
     // const isAdmin = await checkAdminAuth(request);
     // if (!isAdmin) return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
 
-    const { id } = params;
+    const { id } = await params;
     const body = await request.json();
     const { status, rejectionReason } = body;
 

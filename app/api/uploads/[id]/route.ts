@@ -6,7 +6,7 @@ import { prisma } from '@/lib/prisma';
  * Récupère les détails d'une soumission
  */
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {

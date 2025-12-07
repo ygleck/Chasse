@@ -1,11 +1,94 @@
 // Cloudflare Pages Function for /api/uploads
 // Uses D1 for database and R2 for image storage
 
-import { getD1Adapter } from '../../../lib/d1-adapter';
+// D1 adapter (inlined for Pages Functions)
+class D1Adapter {
+  constructor(private db: any) {}
+
+  async createUpload(data: any) {
+    const now = Date.now();
+    const stmt = this.db
+      .prepare(
+        `INSERT INTO UserUpload (
+          id, type, status, title, description, uploaderName, uploaderEmail,
+          species, huntDate, region, weight, weightUnit, points, weaponType, caliber,
+          eventDate, category, participants, createdAt, updatedAt
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+      )
+      .bind(
+        data.id,
+        data.type,
+        'pending',
+        data.title,
+        data.description,
+        data.uploaderName,
+        data.uploaderEmail || null,
+        data.species || null,
+        data.huntDate?.getTime() || null,
+        data.region || null,
+        data.weight || null,
+        data.weightUnit || 'lb',
+        data.points || null,
+        data.weaponType || null,
+        data.caliber || null,
+        data.eventDate?.getTime() || null,
+        data.category || null,
+        data.participants || null,
+        now,
+        now
+      );
+    await stmt.run();
+    return { id: data.id };
+  }
+
+  async createPhoto(data: any) {
+    const stmt = this.db
+      .prepare(
+        `INSERT INTO Photo (id, uploadId, path, thumbnailPath, createdAt) VALUES (?, ?, ?, ?, ?)`
+      )
+      .bind(data.id, data.uploadId, data.path, data.thumbnailPath, Date.now());
+    await stmt.run();
+    return { id: data.id };
+  }
+
+  async findManyUploads(filter: any = {}) {
+    let query = `SELECT * FROM UserUpload WHERE 1=1`;
+    const bindings: any[] = [];
+
+    if (filter.status) {
+      query += ` AND status = ?`;
+      bindings.push(filter.status);
+    }
+    if (filter.type) {
+      query += ` AND type = ?`;
+      bindings.push(filter.type);
+    }
+
+    query += ` ORDER BY createdAt DESC`;
+
+    let stmt = this.db.prepare(query);
+    bindings.forEach((val) => {
+      stmt = stmt.bind(val);
+    });
+    
+    const result = await stmt.all();
+    const uploads = result.results || [];
+
+    for (const upload of uploads) {
+      const photos = await this.db
+        .prepare(`SELECT * FROM Photo WHERE uploadId = ?`)
+        .bind((upload as any).id)
+        .all();
+      (upload as any).photos = photos.results || [];
+    }
+
+    return uploads;
+  }
+}
 
 interface Env {
-  DB: D1Database;
-  UPLOADS: R2Bucket;
+  DB: any;
+  UPLOADS: any;
 }
 
 // Helper to generate unique IDs (simple cuid replacement)
@@ -135,7 +218,7 @@ export async function onRequestPost(context: {
     }
 
     // Save to D1
-    const db = getD1Adapter(env);
+    const db = new D1Adapter(env.DB);
     await db.createUpload(uploadData);
 
     // Save photos
@@ -175,7 +258,7 @@ export async function onRequestGet(context: {
     const status = url.searchParams.get('status') || 'approved';
     const type = url.searchParams.get('type') || undefined;
 
-    const db = getD1Adapter(env);
+    const db = new D1Adapter(env.DB);
     const uploads = await db.findManyUploads({ status, type });
 
     return new Response(JSON.stringify(uploads), {

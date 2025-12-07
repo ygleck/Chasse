@@ -1,9 +1,56 @@
 // Cloudflare Pages Function for /api/uploads/[id]/status
 
-import { getD1Adapter } from '../../../../../lib/d1-adapter';
+// D1 adapter (inlined for Pages Functions)
+class D1Adapter {
+  constructor(private db: any) {}
+
+  async updateUpload(id: string, data: any) {
+    const updates: string[] = [];
+    const bindings: any[] = [];
+
+    if (data.status) {
+      updates.push('status = ?');
+      bindings.push(data.status);
+    }
+    if (data.rejectionReason !== undefined) {
+      updates.push('rejectionReason = ?');
+      bindings.push(data.rejectionReason);
+    }
+
+    updates.push('updatedAt = ?');
+    bindings.push(Date.now());
+    bindings.push(id);
+
+    const stmt = this.db
+      .prepare(`UPDATE UserUpload SET ${updates.join(', ')} WHERE id = ?`)
+      .bind(...bindings);
+    
+    await stmt.run();
+    return this.findUniqueUpload(id);
+  }
+
+  async findUniqueUpload(id: string) {
+    const upload = await this.db
+      .prepare(`SELECT * FROM UserUpload WHERE id = ?`)
+      .bind(id)
+      .first();
+    
+    if (!upload) return null;
+
+    const photos = await this.db
+      .prepare(`SELECT * FROM Photo WHERE uploadId = ?`)
+      .bind(id)
+      .all();
+
+    return {
+      ...upload,
+      photos: photos.results || [],
+    };
+  }
+}
 
 interface Env {
-  DB: D1Database;
+  DB: any;
 }
 
 export async function onRequestPatch(context: {
@@ -34,7 +81,7 @@ export async function onRequestPatch(context: {
       updateData.rejectionReason = rejectionReason;
     }
 
-    const db = getD1Adapter(env);
+    const db = new D1Adapter(env.DB);
     const updated = await db.updateUpload(id, updateData);
 
     return new Response(

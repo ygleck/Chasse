@@ -137,7 +137,7 @@ export class D1Adapter {
     query += ` ORDER BY createdAt DESC`;
 
     const stmt = this.db.prepare(query);
-    bindings.forEach((val, idx) => stmt.bind(val));
+    bindings.forEach((val) => stmt.bind(val));
     
     const result = await stmt.all();
     const uploads = result.results || [];

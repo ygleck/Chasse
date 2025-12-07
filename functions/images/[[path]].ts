@@ -2,7 +2,7 @@
 // Route: /images/[...path]
 
 interface Env {
-  UPLOADS: R2Bucket;
+  UPLOADS: any;
 }
 
 export async function onRequestGet(context: {

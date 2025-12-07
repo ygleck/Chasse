@@ -1,10 +1,32 @@
 // Cloudflare Pages Function for /api/uploads/[id]
 
-import { getD1Adapter } from '../../../../lib/d1-adapter';
+// D1 adapter (inlined for Pages Functions)
+class D1Adapter {
+  constructor(private db: any) {}
+
+  async findUniqueUpload(id: string) {
+    const upload = await this.db
+      .prepare(`SELECT * FROM UserUpload WHERE id = ?`)
+      .bind(id)
+      .first();
+    
+    if (!upload) return null;
+
+    const photos = await this.db
+      .prepare(`SELECT * FROM Photo WHERE uploadId = ?`)
+      .bind(id)
+      .all();
+
+    return {
+      ...upload,
+      photos: photos.results || [],
+    };
+  }
+}
 
 interface Env {
-  DB: D1Database;
-  UPLOADS: R2Bucket;
+  DB: any;
+  UPLOADS: any;
 }
 
 export async function onRequestGet(context: {
@@ -16,7 +38,7 @@ export async function onRequestGet(context: {
     const { env, params } = context;
     const { id } = params;
 
-    const db = getD1Adapter(env);
+    const db = new D1Adapter(env.DB);
     const upload = await db.findUniqueUpload(id);
 
     if (!upload) {

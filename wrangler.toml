@@ -1,0 +1,21 @@
+name = "chasse-group-site"
+type = "javascript"
+account_id = ""
+workers_dev = true
+route = ""
+zone_id = ""
+
+[env.production]
+name = "chasse-group-site-production"
+route = "chasse1.chasseanticosti.pages.dev/*"
+zone_id = ""
+
+[build]
+command = "npm run pages:build"
+cwd = "./"
+watch_paths = ["src/**/*.ts", "src/**/*.tsx", "app/**/*.ts", "app/**/*.tsx"]
+
+[build.upload]
+format = "modules"
+dir = ".vercel/output/static"
+main = "_worker.js"

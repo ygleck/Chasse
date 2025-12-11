@@ -65,12 +65,20 @@ export default function Galerie() {
                 </p>
               </div>
             ) : (
-              <PhotoSwipeGallery images={photos} galleryId="main-gallery">
+              <PhotoSwipeGallery
+                images={photos.map((p, idx) => ({
+                  src: p.path,
+                  width: 1200,
+                  height: 800,
+                  title: `Photo ${idx + 1}`,
+                }))}
+                galleryId="main-gallery"
+              >
                 <div className="gallery-masonry">
                   {photos.map((photo, i) => (
                     <PhotoLink
                       key={photo.id}
-                      href={photo.path}
+                      src={photo.path}
                       thumbnail={photo.thumbnailPath}
                       width={800}
                       height={600}

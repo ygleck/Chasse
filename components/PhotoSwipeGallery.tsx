@@ -16,12 +16,14 @@ interface PhotoSwipeGalleryProps {
   images: PhotoItem[];
   galleryId?: string;
   thumbnailSelector?: string;
+  children?: React.ReactNode;
 }
 
 export function PhotoSwipeGallery({
   images,
   galleryId = 'gallery',
   thumbnailSelector = 'a[data-pswp-index]',
+  children,
 }: PhotoSwipeGalleryProps) {
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -43,7 +45,7 @@ export function PhotoSwipeGallery({
 
   return (
     <div ref={containerRef} id={galleryId} className="gallery">
-      {/* Children will be added via DOM manipulation by PhotoSwipe */}
+      {children}
     </div>
   );
 }

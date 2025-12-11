@@ -1,4 +1,4 @@
-import { prisma } from './prisma';
+import { prisma } from '../lib/prisma';
 
 async function main() {
   console.log('🌱 Peuplement de la base de données...');

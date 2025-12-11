@@ -204,7 +204,7 @@ h3 {
 
 /* Gallery wrapper */
 .gallery {
-  display: none;
+  display: block;
 }
 
 .gallery-masonry {

@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { writeFile, mkdir } from 'fs/promises';
-import { join } from 'path';
+import { PutObjectCommand, ListObjectsV2Command } from '@aws-sdk/client-s3';
 import sharp from 'sharp';
+import { r2, getPublicBaseUrl } from '@/lib/r2';
+
+export const runtime = 'nodejs';
 
 /**
  * POST /api/uploads
- * Upload simple - accepte et sauvegarde les photos
+ * Upload vers R2 (WebP + thumbnail)
  */
 export async function POST(request: NextRequest) {
   try {
@@ -30,45 +32,62 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Créer le répertoire uploads s'il n'existe pas
-    const uploadsDir = join(process.cwd(), 'public', 'uploads');
-    await mkdir(uploadsDir, { recursive: true });
+    const uploadId = `${Date.now()}-${Math.random().toString(36).substring(2, 8)}`;
+    const savedPhotos: Array<{ id: string; path: string; thumbnailPath: string }> = [];
 
-    const uploadId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-    const savedPhotos = [];
+    const bucket = process.env.R2_BUCKET;
+    const publicBase = getPublicBaseUrl();
+
+    if (!bucket || !publicBase) {
+      return NextResponse.json({ error: 'Configuration R2 manquante' }, { status: 500 });
+    }
+
+    // Dossiers distincts par type pour ne pas mélanger
+    const prefix = `${type}/${uploadId}`;
 
     // Traiter chaque photo
     for (let i = 0; i < photos.length; i++) {
       const photo = photos[i];
       const buffer = await photo.arrayBuffer();
-      const photoId = `${uploadId}-${i}`;
-      
-      try {
-        // Convertir en WebP
-        const webpBuffer = await sharp(Buffer.from(buffer))
-          .webp({ quality: 80 })
-          .toBuffer();
-        
-        const photoPath = join(uploadsDir, `${photoId}.webp`);
-        await writeFile(photoPath, webpBuffer);
+      const photoId = `${i}`;
 
-        // Créer thumbnail
-        const thumbBuffer = await sharp(Buffer.from(buffer))
-          .resize(300, 300, { fit: 'cover' })
-          .webp({ quality: 70 })
-          .toBuffer();
-        
-        const thumbPath = join(uploadsDir, `${photoId}-thumb.webp`);
-        await writeFile(thumbPath, thumbBuffer);
+      // Convertir en WebP
+      const webpBuffer = await sharp(Buffer.from(buffer))
+        .webp({ quality: 80 })
+        .toBuffer();
 
-        savedPhotos.push({
-          id: photoId,
-          path: `/uploads/${photoId}.webp`,
-          thumbnailPath: `/uploads/${photoId}-thumb.webp`,
-        });
-      } catch (error) {
-        console.error(`Erreur traitement photo ${i}:`, error);
-      }
+      // Créer thumbnail
+      const thumbBuffer = await sharp(Buffer.from(buffer))
+        .resize(300, 300, { fit: 'cover' })
+        .webp({ quality: 70 })
+        .toBuffer();
+
+      const mainKey = `${prefix}/${photoId}.webp`;
+      const thumbKey = `${prefix}/${photoId}-thumb.webp`;
+
+      await r2.send(
+        new PutObjectCommand({
+          Bucket: bucket,
+          Key: mainKey,
+          Body: webpBuffer,
+          ContentType: 'image/webp',
+        })
+      );
+
+      await r2.send(
+        new PutObjectCommand({
+          Bucket: bucket,
+          Key: thumbKey,
+          Body: thumbBuffer,
+          ContentType: 'image/webp',
+        })
+      );
+
+      savedPhotos.push({
+        id: photoId,
+        path: `${publicBase}/${mainKey}`,
+        thumbnailPath: `${publicBase}/${thumbKey}`,
+      });
     }
 
     return NextResponse.json(
@@ -94,13 +113,46 @@ export async function POST(request: NextRequest) {
 
 /**
  * GET /api/uploads
- * Récupère les soumissions (mock pour maintenant)
+ * Liste les objets depuis R2 (optionnellement filtrés par type)
  */
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    // Pour l'instant, retourner un array vide
-    // Aprés on va ajouter Prisma
-    return NextResponse.json([]);
+    const { searchParams } = new URL(request.url);
+    const type = searchParams.get('type');
+
+    const bucket = process.env.R2_BUCKET;
+    const publicBase = getPublicBaseUrl();
+    if (!bucket || !publicBase) {
+      return NextResponse.json({ error: 'Configuration R2 manquante' }, { status: 500 });
+    }
+
+    const prefix = type ? `${type}/` : '';
+
+    const list = await r2.send(
+      new ListObjectsV2Command({
+        Bucket: bucket,
+        Prefix: prefix,
+      })
+    );
+
+    const contents = list.Contents || [];
+
+    // On ne retient que les fichiers principaux (pas les thumbs)
+    const photos = contents
+      .filter((obj) => obj.Key && !obj.Key.endsWith('-thumb.webp'))
+      .map((obj) => {
+        const key = obj.Key as string;
+        const thumbKey = key.replace(/\.webp$/, '-thumb.webp');
+        const id = key.split('/').pop() || 'photo';
+
+        return {
+          id,
+          path: `${publicBase}/${key}`,
+          thumbnailPath: `${publicBase}/${thumbKey}`,
+        };
+      });
+
+    return NextResponse.json(photos);
   } catch (error) {
     console.error('Get uploads error:', error);
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });

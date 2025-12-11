@@ -1,27 +1,48 @@
-import { NextResponse } from 'next/server';
-
-export const runtime = 'edge';
+import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
 
 export async function PATCH(
-  request: unknown,
-  { params }: { params: Promise<{ id: string }> }
+  request: NextRequest,
+  { params }: { params: { id: string } }
 ) {
   try {
-    await params;
-    const body = await (request as any).json();
-    const { status } = body;
+    const { id } = params;
+    const { status, rejectionReason } = await request.json();
 
     if (!['pending', 'approved', 'rejected'].includes(status)) {
       return NextResponse.json({ error: 'Statut invalide' }, { status: 400 });
     }
 
-    return NextResponse.json({
-      success: true,
-      message: 'Statut mis à jour (mock)',
-      status,
+    const upload = await prisma.userUpload.update({
+      where: { id },
+      data: {
+        status,
+        rejectionReason: status === 'rejected' ? rejectionReason : null,
+      },
+      include: { photos: true },
     });
+
+    return NextResponse.json(upload);
   } catch (error) {
     console.error('Status update error:', error);
+    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
+  }
+}
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const { id } = params;
+
+    await prisma.userUpload.delete({
+      where: { id },
+    });
+
+    return NextResponse.json({ success: true, message: 'Soumission supprimée' });
+  } catch (error) {
+    console.error('Delete error:', error);
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }

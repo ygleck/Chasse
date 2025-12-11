@@ -232,6 +232,41 @@ h3 {
   height: 100%;
 }
 
+/* Form Elements */
+.form-input {
+  @apply w-full px-4 py-2 border-2 border-hunting-gold/30 rounded-lg bg-white text-hunting-slate focus:outline-none focus:border-hunting-orange focus:ring-2 focus:ring-hunting-orange/20 transition-all;
+}
+
+.form-textarea {
+  @apply w-full px-4 py-2 border-2 border-hunting-gold/30 rounded-lg bg-white text-hunting-slate focus:outline-none focus:border-hunting-orange focus:ring-2 focus:ring-hunting-orange/20 transition-all resize-vertical;
+}
+
+/* Buttons */
+.btn-primary {
+  @apply px-6 py-3 bg-gradient-to-r from-hunting-orange to-hunting-gold text-white font-bold uppercase tracking-wider rounded-lg hover:shadow-lg transform hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100;
+}
+
+.btn-secondary {
+  @apply px-6 py-3 bg-hunting-slate/20 text-hunting-slate font-bold uppercase tracking-wider rounded-lg border-2 border-hunting-slate/50 hover:border-hunting-orange hover:bg-hunting-orange/10 transition-all disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.btn-danger {
+  @apply px-6 py-3 bg-red-100 text-red-700 font-bold uppercase tracking-wider rounded-lg border-2 border-red-300 hover:bg-red-200 hover:border-red-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+/* Badge Components */
+.badge-primary {
+  @apply inline-block px-4 py-1 bg-gradient-to-r from-hunting-orange to-hunting-gold text-white rounded-full text-xs font-bold;
+}
+
+.badge-secondary {
+  @apply inline-block px-4 py-1 bg-hunting-gold/20 text-hunting-gold rounded-full text-xs font-bold border border-hunting-gold;
+}
+
+.badge-outline {
+  @apply inline-block px-4 py-1 bg-hunting-cream text-hunting-slate rounded-full text-xs font-bold border-2 border-hunting-slate;
+}
+
 /* Responsive utilities */
 @media (max-width: 640px) {
   h1 {
@@ -251,5 +286,11 @@ h3 {
   .pswp__caption {
     padding: 8px 12px;
     font-size: 12px;
+  }
+
+  .btn-primary,
+  .btn-secondary,
+  .btn-danger {
+    @apply px-4 py-2 text-sm;
   }
 }

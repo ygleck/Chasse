@@ -2,7 +2,7 @@
 
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
-import { MemoryCard } from '@/components/MemoryCard';
+import { PhotoSwipeGallery, PhotoLink } from '@/components/PhotoSwipeGallery';
 import { useEffect, useState } from 'react';
 
 interface Memory {
@@ -174,24 +174,61 @@ export default function Galerie() {
                 </a>
               </div>
             ) : (
-              <div className="gallery-masonry">
-                {filteredMemories.map((memory) => (
-                  <div key={memory.id} className="gallery-item">
-                    <MemoryCard
-                      title={memory.title}
-                      image={
-                        memory.photos[0]?.thumbnailPath || '/placeholder.jpg'
-                      }
-                      category={memory.category || 'Général'}
-                      uploaderName={memory.uploaderName}
-                      eventDate={
-                        memory.eventDate
-                          ? new Date(memory.eventDate).toLocaleDateString('fr-CA')
-                          : undefined
-                      }
-                    />
-                  </div>
-                ))}
+              <div id="gallery">
+                <PhotoSwipeGallery
+                  images={filteredMemories.map((memory) => ({
+                    src: memory.photos[0]?.thumbnailPath || '/placeholder.jpg',
+                    width: 1200,
+                    height: 800,
+                    title: memory.title,
+                    alt: memory.title,
+                  }))}
+                  galleryId="gallery"
+                />
+                <div className="gallery-masonry">
+                  {filteredMemories.map((memory, index) => (
+                    <div key={memory.id} className="gallery-item">
+                      <PhotoLink
+                        src={memory.photos[0]?.thumbnailPath || '/placeholder.jpg'}
+                        thumbnail={memory.photos[0]?.thumbnailPath}
+                        title={memory.title}
+                        alt={memory.title}
+                        index={index}
+                        className="block w-full h-full overflow-hidden rounded-lg cursor-pointer hover:scale-105 transition-transform duration-300"
+                      >
+                        <div className="w-full h-full relative">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={memory.photos[0]?.thumbnailPath || '/placeholder.jpg'}
+                            alt={memory.title}
+                            className="w-full h-full object-cover"
+                          />
+                          <div className="absolute inset-0 bg-black/0 hover:bg-black/20 transition-colors duration-300 flex items-center justify-center">
+                            <div className="text-white text-3xl opacity-0 hover:opacity-100 transition-opacity duration-300">
+                              🔍
+                            </div>
+                          </div>
+                        </div>
+                      </PhotoLink>
+                      <div className="p-4 bg-white">
+                        <h3 className="font-heading text-lg mb-1 text-hunting-dark line-clamp-1">
+                          {memory.title}
+                        </h3>
+                        <p className="text-sm text-hunting-gold font-semibold mb-2">
+                          {memory.category || 'Général'}
+                        </p>
+                        <p className="text-xs text-hunting-slate/70">
+                          Par {memory.uploaderName}
+                        </p>
+                        {memory.eventDate && (
+                          <p className="text-xs text-hunting-slate/70 mt-1">
+                            {new Date(memory.eventDate).toLocaleDateString('fr-CA')}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </div>
@@ -199,7 +236,7 @@ export default function Galerie() {
 
         {/* CTA SECTION */}
         {filteredMemories.length > 0 && (
-          <section className="section-padding bg-gradient-warm text-white text-center">
+          <section className="section-padding bg-gradient-forest text-white text-center">
             <div className="section-container max-w-2xl">
               <h2 className="font-heading text-4xl mb-4 uppercase tracking-wider">
                 Partagez Votre Moment

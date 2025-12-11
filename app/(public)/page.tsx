@@ -1,5 +1,6 @@
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
+import { PhotoSwipeGallery, PhotoLink } from '@/components/PhotoSwipeGallery';
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -130,37 +131,72 @@ export default function Home() {
               Dernières Contributions
             </h2>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="card-premium group hover:scale-105 transition-all duration-500 hover:shadow-2xl hover:z-10" style={{
-                  transform: i === 2 ? 'translateY(-8px)' : 'none'
-                }}>
-                  <div className="card-image bg-gradient-to-br from-hunting-forest to-hunting-brown overflow-hidden relative">
-                    <div className="w-full h-full flex items-center justify-center group-hover:scale-110 transition-transform duration-500">
-                      <div className="text-center">
-                        <div className="text-6xl mb-2 group-hover:scale-125 transition-transform duration-300">🦌</div>
-                        <p className="text-white text-sm">Souvenir #{i}</p>
+            <div id="contributions-gallery">
+              <PhotoSwipeGallery
+                images={[
+                  {
+                    src: '/placeholder.jpg',
+                    width: 1200,
+                    height: 800,
+                    title: 'Moment de chasse mémorable #1',
+                  },
+                  {
+                    src: '/placeholder.jpg',
+                    width: 1200,
+                    height: 800,
+                    title: 'Moment de chasse mémorable #2',
+                  },
+                  {
+                    src: '/placeholder.jpg',
+                    width: 1200,
+                    height: 800,
+                    title: 'Moment de chasse mémorable #3',
+                  },
+                ]}
+                galleryId="contributions-gallery"
+              />
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="card-premium group hover:scale-105 transition-all duration-500 hover:shadow-2xl hover:z-10" style={{
+                    transform: i === 2 ? 'translateY(-8px)' : 'none'
+                  }}>
+                    <PhotoLink
+                      src={`/placeholder.jpg`}
+                      thumbnail={`/placeholder.jpg`}
+                      title={`Moment de chasse mémorable #${i}`}
+                      alt={`Souvenir #${i}`}
+                      index={i - 1}
+                      className="block w-full"
+                    >
+                      <div className="card-image bg-gradient-to-br from-hunting-forest to-hunting-brown overflow-hidden relative">
+                        <div className="w-full h-full flex items-center justify-center group-hover:scale-110 transition-transform duration-500">
+                          <div className="text-center">
+                            <div className="text-6xl mb-2 group-hover:scale-125 transition-transform duration-300">🦌</div>
+                            <p className="text-white text-sm">Souvenir #{i}</p>
+                          </div>
+                        </div>
+                        {/* Overlay hover */}
+                        <div className="absolute inset-0 bg-hunting-orange/0 group-hover:bg-hunting-orange/10 transition-all duration-300"></div>
                       </div>
+                    </PhotoLink>
+                    <div className="p-6 bg-white group-hover:bg-hunting-cream/50 transition-colors duration-300">
+                      <div className="mb-3">
+                        <span className="badge-primary">Souvenir</span>
+                      </div>
+                      <h3 className="font-heading text-xl mb-2 text-hunting-dark group-hover:text-hunting-orange transition-colors">
+                        Moment de chasse mémorable
+                      </h3>
+                      <p className="text-hunting-slate/70 text-sm mb-4 line-clamp-2">
+                        Une belle journée en compagnie du groupe dans les bois profonds.
+                      </p>
+                      <p className="text-xs text-hunting-gold font-semibold">
+                        Par Jean Chasseur
+                      </p>
                     </div>
-                    {/* Overlay hover */}
-                    <div className="absolute inset-0 bg-hunting-orange/0 group-hover:bg-hunting-orange/10 transition-all duration-300"></div>
                   </div>
-                  <div className="p-6 bg-white group-hover:bg-hunting-cream/50 transition-colors duration-300">
-                    <div className="mb-3">
-                      <span className="badge-primary">Souvenir</span>
-                    </div>
-                    <h3 className="font-heading text-xl mb-2 text-hunting-dark group-hover:text-hunting-orange transition-colors">
-                      Moment de chasse mémorable
-                    </h3>
-                    <p className="text-hunting-slate/70 text-sm mb-4 line-clamp-2">
-                      Une belle journée en compagnie du groupe dans les bois profonds.
-                    </p>
-                    <p className="text-xs text-hunting-gold font-semibold">
-                      Par Jean Chasseur
-                    </p>
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
 
             <div className="text-center">

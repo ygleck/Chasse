@@ -22,17 +22,17 @@ export default function Home() {
           </div>
 
           {/* Dark Overlay */}
-          <div className="absolute inset-0 bg-black/35" />
+          <div className="absolute inset-0 bg-black/50" />
 
           {/* Content */}
           <div className="hero-content text-center text-white max-w-3xl px-4">
-            <h1 className="font-heading text-6xl md:text-7xl lg:text-8xl mb-6 tracking-wider uppercase">
+            <h1 className="font-heading text-6xl md:text-7xl lg:text-8xl mb-6 tracking-wider uppercase" style={{ textShadow: '2px 2px 8px rgba(0,0,0,0.8)' }}>
               GROUPE DE CHASSE
             </h1>
-            <p className="text-lg md:text-2xl mb-8 text-hunting-gold font-semibold tracking-wide">
+            <p className="text-lg md:text-2xl mb-8 text-hunting-gold font-bold tracking-wide" style={{ textShadow: '2px 2px 6px rgba(0,0,0,0.9)' }}>
               Communauté de Chasseurs Passionnés
             </p>
-            <p className="text-base md:text-lg mb-12 max-w-2xl mx-auto leading-relaxed opacity-95">
+            <p className="text-base md:text-lg mb-12 max-w-2xl mx-auto leading-relaxed font-medium" style={{ textShadow: '1px 1px 4px rgba(0,0,0,0.8)' }}>
               Partage de souvenirs mémorables, trophées exceptionnels et histoires de chasse inoubliables. 
               Une communauté unie par la passion de la nature sauvage.
             </p>

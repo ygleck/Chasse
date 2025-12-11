@@ -1,13 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PutObjectCommand, ListObjectsV2Command } from '@aws-sdk/client-s3';
-import sharp from 'sharp';
 import { r2, getPublicBaseUrl } from '@/lib/r2';
 
 export const runtime = 'edge';
 
 /**
  * POST /api/uploads
- * Upload vers R2 (WebP + thumbnail)
+ * Upload simple vers R2 (sans conversion d'images)
  */
 export async function POST(request: NextRequest) {
   try {
@@ -33,7 +32,7 @@ export async function POST(request: NextRequest) {
     }
 
     const uploadId = `${Date.now()}-${Math.random().toString(36).substring(2, 8)}`;
-    const savedPhotos: Array<{ id: string; path: string; thumbnailPath: string }> = [];
+    const savedPhotos: Array<{ id: string; path: string }> = [];
 
     const bucket = process.env.R2_BUCKET;
     const publicBase = getPublicBaseUrl();
@@ -50,43 +49,22 @@ export async function POST(request: NextRequest) {
       const photo = photos[i];
       const buffer = await photo.arrayBuffer();
       const photoId = `${i}`;
+      const fileExt = photo.name.split('.').pop() || 'jpg';
 
-      // Convertir en WebP
-      const webpBuffer = await sharp(Buffer.from(buffer))
-        .webp({ quality: 80 })
-        .toBuffer();
-
-      // Créer thumbnail
-      const thumbBuffer = await sharp(Buffer.from(buffer))
-        .resize(300, 300, { fit: 'cover' })
-        .webp({ quality: 70 })
-        .toBuffer();
-
-      const mainKey = `${prefix}/${photoId}.webp`;
-      const thumbKey = `${prefix}/${photoId}-thumb.webp`;
+      const key = `${prefix}/${photoId}.${fileExt}`;
 
       await r2.send(
         new PutObjectCommand({
           Bucket: bucket,
-          Key: mainKey,
-          Body: webpBuffer,
-          ContentType: 'image/webp',
-        })
-      );
-
-      await r2.send(
-        new PutObjectCommand({
-          Bucket: bucket,
-          Key: thumbKey,
-          Body: thumbBuffer,
-          ContentType: 'image/webp',
+          Key: key,
+          Body: new Uint8Array(buffer),
+          ContentType: photo.type || 'image/jpeg',
         })
       );
 
       savedPhotos.push({
         id: photoId,
-        path: `${publicBase}/${mainKey}`,
-        thumbnailPath: `${publicBase}/${thumbKey}`,
+        path: `${publicBase}/${key}`,
       });
     }
 
@@ -137,18 +115,16 @@ export async function GET(request: NextRequest) {
 
     const contents = list.Contents || [];
 
-    // On ne retient que les fichiers principaux (pas les thumbs)
+    // Retourner tous les fichiers images
     const photos = contents
-      .filter((obj) => obj.Key && !obj.Key.endsWith('-thumb.webp'))
+      .filter((obj) => obj.Key && /\.(jpg|jpeg|png|gif|webp)$/i.test(obj.Key))
       .map((obj) => {
         const key = obj.Key as string;
-        const thumbKey = key.replace(/\.webp$/, '-thumb.webp');
         const id = key.split('/').pop() || 'photo';
 
         return {
           id,
           path: `${publicBase}/${key}`,
-          thumbnailPath: `${publicBase}/${thumbKey}`,
         };
       });
 
@@ -158,3 +134,4 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
+

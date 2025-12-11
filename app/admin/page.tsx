@@ -142,11 +142,11 @@ export default function AdminPage() {
                     {/* Images */}
                     {upload.photos.length > 0 && (
                       <div className="relative h-48 bg-gradient-to-br from-hunting-forest to-hunting-dark">
-                        <Image
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
                           src={upload.photos[0].thumbnailPath}
                           alt={upload.title}
-                          fill
-                          className="object-cover"
+                          className="w-full h-full object-cover"
                         />
                       </div>
                     )}

@@ -8,7 +8,6 @@ import { useEffect, useState } from 'react';
 interface Photo {
   id: string;
   path: string;
-  thumbnailPath: string;
 }
 
 export default function Galerie() {
@@ -79,7 +78,7 @@ export default function Galerie() {
                     <PhotoLink
                       key={photo.id}
                       src={photo.path}
-                      thumbnail={photo.thumbnailPath}
+                      thumbnail={photo.path}
                       width={800}
                       height={600}
                       title={`Photo ${i + 1}`}
@@ -87,7 +86,7 @@ export default function Galerie() {
                     >
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
-                        src={photo.thumbnailPath}
+                        src={photo.path}
                         alt={`Photo ${i + 1}`}
                         className="w-full h-full object-cover hover:scale-110 transition-transform duration-300 cursor-pointer relative group"
                       />

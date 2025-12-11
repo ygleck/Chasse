@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
 
 export const runtime = 'edge';
 
@@ -15,16 +14,13 @@ export async function PATCH(
       return NextResponse.json({ error: 'Statut invalide' }, { status: 400 });
     }
 
-    const upload = await prisma.userUpload.update({
-      where: { id },
-      data: {
-        status,
-        rejectionReason: status === 'rejected' ? rejectionReason : null,
-      },
-      include: { photos: true },
+    // Mock update - Dans une vraie app, on utiliserait une DB
+    return NextResponse.json({
+      id,
+      status,
+      rejectionReason: status === 'rejected' ? rejectionReason : null,
+      message: 'Statut mis à jour (mock)',
     });
-
-    return NextResponse.json(upload);
   } catch (error) {
     console.error('Status update error:', error);
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
@@ -38,13 +34,11 @@ export async function DELETE(
   try {
     const { id } = await params;
 
-    await prisma.userUpload.delete({
-      where: { id },
-    });
-
-    return NextResponse.json({ success: true, message: 'Soumission supprimée' });
+    // Mock delete
+    return NextResponse.json({ success: true, message: 'Soumission supprimée (mock)', id });
   } catch (error) {
     console.error('Delete error:', error);
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
+}
 }

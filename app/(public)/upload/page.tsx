@@ -92,8 +92,9 @@ export default function Upload() {
         body: form,
       });
       if (!response.ok) throw new Error('Erreur');
+      const data = await response.json();
       setMessage({
-        text: 'Soumission reçue! Elle sera modérée avant publication.',
+        text: `✅ Photos uploadées avec succès! ${data.photos?.length || 0} image(s) sauvegardée(s).`,
         type: 'success',
       });
       setType(null);

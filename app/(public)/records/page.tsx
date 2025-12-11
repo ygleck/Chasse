@@ -99,7 +99,7 @@ export default function Records() {
                   className="form-input"
                 >
                   <option value="all">Toutes les régions</option>
-                  {regions.map((r) => (
+                  {regions.filter((r): r is string => r !== null).map((r) => (
                     <option key={r} value={r}>{r}</option>
                   ))}
                 </select>

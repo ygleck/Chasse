@@ -2,7 +2,6 @@
 
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
-import Image from 'next/image';
 import { useState, useEffect } from 'react';
 
 interface Upload {
@@ -143,10 +142,11 @@ export default function AdminPage() {
                     {/* Images */}
                     {upload.photos.length > 0 && (
                       <div className="relative h-48 bg-gradient-to-br from-hunting-forest to-hunting-dark">
-                        <img
+                        <Image
                           src={upload.photos[0].thumbnailPath}
                           alt={upload.title}
-                          className="w-full h-full object-cover"
+                          fill
+                          className="object-cover"
                         />
                       </div>
                     )}

@@ -193,7 +193,7 @@ export default function Home() {
                 <ul className="space-y-3">
                   <li className="flex gap-3 text-hunting-slate/70">
                     <span className="text-red-500 font-bold">✗</span>
-                    Armes pointées vers quelqu'un
+                    Armes pointées vers quelqu&apos;un
                   </li>
                   <li className="flex gap-3 text-hunting-slate/70">
                     <span className="text-red-500 font-bold">✗</span>

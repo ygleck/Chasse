@@ -1,6 +1,5 @@
 'use client';
 
-import Image from 'next/image';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { useState } from 'react';
@@ -229,8 +228,8 @@ export default function Upload() {
                   {previewUrls.length > 0 && (
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mt-6">
                       {previewUrls.map((url, i) => (
-                        <div key={i} className="relative group">
-                          <img src={url} alt="" className="w-full h-32 object-cover rounded-lg" />
+                        <div key={i} className="relative group h-32">
+                          <Image src={url} alt="" fill className="object-cover rounded-lg" />
                           <button
                             type="button"
                             onClick={() => removeFile(i)}

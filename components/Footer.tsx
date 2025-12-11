@@ -116,7 +116,7 @@ export function Footer() {
               Politique de confidentialité
             </a>
             <a href="#" className="text-hunting-gold hover:text-hunting-orange transition-colors text-sm font-semibold">
-              Conditions d'utilisation
+              Conditions d&apos;utilisation
             </a>
           </div>
         </div>

@@ -224,7 +224,7 @@ export default function Home() {
               Partagez Votre Moment
             </h2>
             <p className="text-lg mb-8 opacity-95 leading-relaxed">
-              Vous avez une photo, un record ou un souvenir à partager? Rejoignez notre communauté et inspirez d'autres chasseurs.
+              Vous avez une photo, un record ou un souvenir à partager? Rejoignez notre communauté et inspirez d&apos;autres chasseurs.
             </p>
             <Link href="/upload" className="btn-primary text-lg">
               Soumettre une Contribution

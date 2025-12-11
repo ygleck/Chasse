@@ -333,7 +333,7 @@ export default function Upload() {
                       </div>
                       <div>
                         <label className="block text-sm font-bold uppercase tracking-wider text-hunting-slate mb-2">
-                          Type d'arme
+                          Type d&apos;arme
                         </label>
                         <select name="weaponType" value={formData.weaponType} onChange={handleInputChange} className="form-input">
                           <option value="">Sélectionner...</option>

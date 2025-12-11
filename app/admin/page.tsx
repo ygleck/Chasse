@@ -92,7 +92,7 @@ export default function AdminPage() {
               Modération
             </h1>
             <p className="text-lg text-hunting-gold opacity-90">
-              Gérez les soumissions en attente d'approbation
+              Gérez les soumissions en attente d&apos;approbation
             </p>
           </div>
         </section>

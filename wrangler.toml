@@ -3,3 +3,15 @@ compatibility_date = "2025-01-01"
 pages_build_output_dir = ".vercel/output/static"
 
 compatibility_flags = ["nodejs_compat"]
+
+# Cloudflare Worker configuration
+[env.production]
+routes = [
+  { pattern = "*/api/uploads*", zone_name = "yannheppell.ca" }
+]
+r2_buckets = [
+  { binding = "R2_BUCKET", bucket_name = "chasse-uploads" }
+]
+
+[env.production.vars]
+R2_PUBLIC_URL = "https://chasse-uploads.yannheppell.ca"

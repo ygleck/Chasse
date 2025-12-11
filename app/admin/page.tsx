@@ -24,6 +24,7 @@ interface Upload {
   weight?: number;
   points?: number;
   region?: string;
+  rejectionReason?: string;
   createdAt: string;
 }
 
@@ -127,10 +128,10 @@ export default function AdminPage() {
         <section className="section-padding bg-white border-b border-hunting-gold/20">
           <div className="section-container max-w-6xl">
             <div className="flex flex-wrap gap-3">
-              {['all', 'pending', 'approved', 'rejected'].map((s) => (
+              {(['all', 'pending', 'approved', 'rejected'] as const).map((s) => (
                 <button
                   key={s}
-                  onClick={() => setFilter(s as any)}
+                  onClick={() => setFilter(s)}
                   className={`px-4 py-2 rounded-lg font-semibold transition-all ${
                     filter === s
                       ? 'bg-hunting-orange text-white'
@@ -257,7 +258,7 @@ export default function AdminPage() {
                         {upload.status === 'rejected' && (
                           <div className="p-3 bg-red-50 border-l-4 border-red-500 rounded">
                             <p className="text-red-700 text-sm">
-                              <strong>Raison du rejet:</strong> {selectedUpload?.id === upload.id ? rejectionReason : 'À spécifier'}
+                              <strong>Raison du rejet:</strong> {upload.rejectionReason || 'Non spécifiée'}
                             </p>
                           </div>
                         )}
@@ -272,7 +273,7 @@ export default function AdminPage() {
                               disabled={updatingId === upload.id}
                               className="btn-primary text-sm"
                             >
-                              ✓ Approuver
+                              {updatingId === upload.id ? '...' : '✓ Approuver'}
                             </button>
                             <button
                               onClick={() => {
@@ -347,148 +348,6 @@ export default function AdminPage() {
             )}
           </div>
         </section>
-      </main>
-      <Footer />
-    </>
-  );
-}
-          <div className="section-container">
-            <div className="flex flex-wrap gap-3">
-              {['all', 'pending', 'approved', 'rejected'].map((status) => (
-                <button
-                  key={status}
-                  onClick={() => setFilter(status as any)}
-                  className={`px-6 py-2 rounded-lg font-semibold uppercase tracking-wider transition-all ${
-                    filter === status
-                      ? 'bg-hunting-orange text-white'
-                      : 'bg-hunting-cream text-hunting-slate hover:bg-hunting-gold/20'
-                  }`}
-                >
-                  {status === 'all' && 'Tous'}
-                  {status === 'pending' && '⏳ En attente'}
-                  {status === 'approved' && '✓ Approuvé'}
-                  {status === 'rejected' && '✕ Rejeté'}
-                </button>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* CONTENT */}
-        <section className="section-padding bg-hunting-cream">
-          <div className="section-container">
-            {loading ? (
-              <div className="text-center py-12">
-                <div className="inline-block">
-                  <div className="animate-spin rounded-full h-12 w-12 border-4 border-hunting-gold border-t-hunting-orange" />
-                </div>
-              </div>
-            ) : filteredUploads.length === 0 ? (
-              <div className="card-premium bg-white p-12 text-center">
-                <p className="text-hunting-slate/70 text-lg">
-                  Aucune soumission {filter !== 'all' ? 'avec ce statut' : ''}.
-                </p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {filteredUploads.map((upload) => (
-                  <div key={upload.id} className="card-premium bg-white overflow-hidden">
-                    {/* Images */}
-                    {upload.photos.length > 0 && (
-                      <div className="relative h-48 bg-gradient-to-br from-hunting-forest to-hunting-dark">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={upload.photos[0].thumbnailPath}
-                          alt={upload.title}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                    )}
-
-                    {/* Content */}
-                    <div className="p-6">
-                      <div className="flex justify-between items-start mb-3">
-                        <span className={`text-xs font-bold uppercase tracking-wider ${upload.type === 'souvenir' ? 'text-hunting-orange' : 'text-hunting-forest'}`}>
-                          {upload.type}
-                        </span>
-                        {getStatusBadge(upload.status)}
-                      </div>
-
-                      <h3 className="font-heading text-xl text-hunting-dark mb-2 line-clamp-2">
-                        {upload.title}
-                      </h3>
-
-                      <p className="text-sm text-hunting-slate/70 line-clamp-2 mb-3">
-                        {upload.description}
-                      </p>
-
-                      <div className="text-xs text-hunting-gold font-semibold mb-4">
-                        Par <strong>{upload.uploaderName}</strong>
-                        {upload.species && ` • ${upload.species}`}
-                        {upload.category && ` • ${upload.category}`}
-                      </div>
-
-                      {/* Actions */}
-                      {upload.status === 'pending' && (
-                        <div className="space-y-3">
-                          <button
-                            onClick={() => handleStatusChange(upload.id, 'approved')}
-                            disabled={updatingId === upload.id}
-                            className="w-full btn-primary text-sm"
-                          >
-                            {updatingId === upload.id ? '...' : '✓ Approuver'}
-                          </button>
-                          <button
-                            onClick={() => setSelectedUpload(upload)}
-                            disabled={updatingId === upload.id}
-                            className="w-full btn-secondary text-sm"
-                          >
-                            ✕ Rejeter
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </section>
-
-        {/* REJECTION MODAL */}
-        {selectedUpload && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-lg p-6 max-w-md w-full">
-              <h3 className="font-heading text-2xl text-hunting-dark mb-4">
-                Rejeter la soumission
-              </h3>
-              <p className="text-hunting-slate/70 mb-6">
-                Soumission: <strong>{selectedUpload.title}</strong>
-              </p>
-              <textarea
-                value={rejectionReason}
-                onChange={(e) => setRejectionReason(e.target.value)}
-                placeholder="Raison du rejet (optionnel)..."
-                className="form-textarea mb-6 h-24"
-              />
-              <div className="flex gap-4">
-                <button
-                  onClick={() => handleStatusChange(selectedUpload.id, 'rejected')}
-                  disabled={updatingId === selectedUpload.id}
-                  className="btn-primary flex-1"
-                >
-                  {updatingId === selectedUpload.id ? '...' : 'Confirmer'}
-                </button>
-                <button
-                  onClick={() => setSelectedUpload(null)}
-                  className="btn-secondary flex-1"
-                >
-                  Annuler
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
       </main>
       <Footer />
     </>

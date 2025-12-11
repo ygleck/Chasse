@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PutObjectCommand, ListObjectsV2Command } from '@aws-sdk/client-s3';
-import { r2, getPublicBaseUrl } from '@/lib/r2';
+import fs from 'fs/promises';
+import path from 'path';
 
-export const runtime = 'edge';
+// En développement local, on stocke dans public/uploads
+const UPLOADS_DIR = path.join(process.cwd(), 'public/uploads');
 
 /**
  * POST /api/uploads
- * Upload simple vers R2 (sans conversion d'images)
+ * Upload dans le stockage local (développement)
  */
 export async function POST(request: NextRequest) {
   try {
@@ -34,37 +35,24 @@ export async function POST(request: NextRequest) {
     const uploadId = `${Date.now()}-${Math.random().toString(36).substring(2, 8)}`;
     const savedPhotos: Array<{ id: string; path: string }> = [];
 
-    const bucket = process.env.R2_BUCKET;
-    const publicBase = getPublicBaseUrl();
+    // Créer les dossiers
+    const uploadDir = path.join(UPLOADS_DIR, type, uploadId);
+    await fs.mkdir(uploadDir, { recursive: true });
 
-    if (!bucket || !publicBase) {
-      return NextResponse.json({ error: 'Configuration R2 manquante' }, { status: 500 });
-    }
-
-    // Dossiers distincts par type pour ne pas mélanger
-    const prefix = `${type}/${uploadId}`;
-
-    // Traiter chaque photo
+    // Sauvegarder chaque photo
     for (let i = 0; i < photos.length; i++) {
       const photo = photos[i];
       const buffer = await photo.arrayBuffer();
       const photoId = `${i}`;
       const fileExt = photo.name.split('.').pop() || 'jpg';
-
-      const key = `${prefix}/${photoId}.${fileExt}`;
-
-      await r2.send(
-        new PutObjectCommand({
-          Bucket: bucket,
-          Key: key,
-          Body: new Uint8Array(buffer),
-          ContentType: photo.type || 'image/jpeg',
-        })
-      );
+      const fileName = `${photoId}.${fileExt}`;
+      
+      const filePath = path.join(uploadDir, fileName);
+      await fs.writeFile(filePath, Buffer.from(buffer));
 
       savedPhotos.push({
         id: photoId,
-        path: `${publicBase}/${key}`,
+        path: `/uploads/${type}/${uploadId}/${fileName}`,
       });
     }
 
@@ -91,42 +79,37 @@ export async function POST(request: NextRequest) {
 
 /**
  * GET /api/uploads
- * Liste les objets depuis R2 (optionnellement filtrés par type)
+ * Liste les photos du stockage local
  */
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const type = searchParams.get('type');
 
-    const bucket = process.env.R2_BUCKET;
-    const publicBase = getPublicBaseUrl();
-    if (!bucket || !publicBase) {
-      return NextResponse.json({ error: 'Configuration R2 manquante' }, { status: 500 });
-    }
+    const searchDir = type 
+      ? path.join(UPLOADS_DIR, type)
+      : UPLOADS_DIR;
 
-    const prefix = type ? `${type}/` : '';
+    // Lister tous les fichiers
+    const photos: Array<{ id: string; path: string }> = [];
 
-    const list = await r2.send(
-      new ListObjectsV2Command({
-        Bucket: bucket,
-        Prefix: prefix,
-      })
-    );
-
-    const contents = list.Contents || [];
-
-    // Retourner tous les fichiers images
-    const photos = contents
-      .filter((obj) => obj.Key && /\.(jpg|jpeg|png|gif|webp)$/i.test(obj.Key))
-      .map((obj) => {
-        const key = obj.Key as string;
-        const id = key.split('/').pop() || 'photo';
-
-        return {
-          id,
-          path: `${publicBase}/${key}`,
-        };
+    try {
+      const entries = await fs.readdir(searchDir, { recursive: true, withFileTypes: true });
+      
+      entries.forEach((entry) => {
+        if (entry.isFile && /\.(jpg|jpeg|png|gif|webp)$/i.test(entry.name)) {
+          const relativePath = path.relative(UPLOADS_DIR, path.join(entry.parentPath, entry.name));
+          const filePath = path.posix.join('/uploads', relativePath);
+          
+          photos.push({
+            id: entry.name,
+            path: filePath,
+          });
+        }
       });
+    } catch {
+      // Dossier n'existe pas encore - c'est ok
+    }
 
     return NextResponse.json(photos);
   } catch (error) {
@@ -134,4 +117,3 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
-

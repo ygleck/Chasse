@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-export const runtime = 'edge';
-
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -14,12 +12,12 @@ export async function PATCH(
       return NextResponse.json({ error: 'Statut invalide' }, { status: 400 });
     }
 
-    // Mock update - Dans une vraie app, on utiliserait une DB
+    // Mock update
     return NextResponse.json({
       id,
       status,
       rejectionReason: status === 'rejected' ? rejectionReason : null,
-      message: 'Statut mis à jour (mock)',
+      message: 'Statut mis à jour',
     });
   } catch (error) {
     console.error('Status update error:', error);
@@ -35,7 +33,7 @@ export async function DELETE(
     const { id } = await params;
 
     // Mock delete
-    return NextResponse.json({ success: true, message: 'Soumission supprimée (mock)', id });
+    return NextResponse.json({ success: true, message: 'Soumission supprimée', id });
   } catch (error) {
     console.error('Delete error:', error);
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });

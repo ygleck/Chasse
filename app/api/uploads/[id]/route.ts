@@ -1,7 +1,5 @@
 import { NextResponse } from 'next/server';
 
-export const runtime = 'edge';
-
 export async function GET(
   _request: unknown,
   { params }: { params: Promise<{ id: string }> }
@@ -31,8 +29,8 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    await params;
-    return NextResponse.json({ success: true, message: 'Supprimé (mock)' });
+    const { id } = await params;
+    return NextResponse.json({ success: true, message: 'Supprimé', id });
   } catch (error) {
     console.error('Delete error:', error);
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });

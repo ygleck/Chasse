@@ -1,11 +1,3 @@
 name = "chasse-group-site"
-main = "src/index.ts"
 compatibility_date = "2025-01-01"
 pages_build_output_dir = ".vercel/output/static"
-
-[build]
-command = "npm run pages:build"
-cwd = "./"
-
-[env.production]
-vars = { ENVIRONMENT = "production" }

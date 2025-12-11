@@ -10,16 +10,15 @@ export default function Home() {
       <main className="min-h-screen">
         {/* HERO SECTION - Full Screen avec Image Orignal */}
         <section className="relative h-screen w-full overflow-hidden bg-gradient-forest flex items-center justify-center">
-          {/* Background Image - Using gradient fallback if image not available */}
-          <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-hunting-forest via-hunting-dark to-hunting-brown">
-            {/* Image will load here when hero-orignal.jpg is available */}
-            {/* <Image
+          {/* Background Image */}
+          <div className="absolute inset-0 w-full h-full">
+            <Image
               src="/uploads/hero-orignal.jpg"
               alt="Crâne d'orignal - Groupe de Chasse"
               fill
               priority
               className="object-cover object-center"
-            /> */}
+            />
           </div>
 
           {/* Dark Overlay */}

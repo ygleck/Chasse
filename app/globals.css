@@ -61,7 +61,7 @@ h3 {
 
 /* Cards */
 .card-premium {
-  @apply bg-white rounded-xl shadow-md hover:shadow-2xl transition-all duration-300 border border-hunting-gold/10 overflow-hidden group;
+  @apply bg-white rounded-xl shadow-md hover:shadow-2xl transition-all duration-300 border border-hunting-gold/10 overflow-hidden;
 }
 
 .card-image {
@@ -69,7 +69,12 @@ h3 {
 }
 
 .card-image img {
-  @apply w-full h-full object-cover group-hover:scale-110 transition-transform duration-300;
+  @apply w-full h-full object-cover transition-transform duration-300;
+}
+
+/* Group hover effect for cards */
+.group:hover .card-image img {
+  @apply scale-110;
 }
 
 .card-hover {

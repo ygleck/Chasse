@@ -1,7 +1,5 @@
 import Image from 'next/image';
-/**
- * Card component for displaying memory (souvenir)
- */
+
 interface MemoryCardProps {
   title: string;
   image: string;
@@ -18,25 +16,38 @@ export function MemoryCard({
   eventDate,
 }: MemoryCardProps) {
   return (
-    <div className="trophy-card cursor-pointer">
-      <div className="relative w-full h-64 overflow-hidden bg-gray-200">
+    <div className="card-premium group cursor-pointer h-full">
+      {/* Image */}
+      <div className="card-image relative">
         <Image
           src={image}
           alt={title}
-          width={800}
-          height={600}
+          width={400}
+          height={300}
           className="w-full h-full object-cover"
         />
       </div>
-      <div className="p-4">
-        <div className="flex items-start justify-between gap-2 mb-2">
-          <h3 className="font-bold text-lg text-hunting-dark flex-1">{title}</h3>
-          <span className="hunting-badge text-xs">{category}</span>
+
+      {/* Content */}
+      <div className="p-6">
+        <div className="mb-3">
+          <span className="badge-primary text-xs">{category}</span>
         </div>
-        <p className="text-sm text-gray-600 mb-3">Par {uploaderName}</p>
-        {eventDate && (
-          <p className="text-xs text-hunting-kaki">{eventDate}</p>
-        )}
+
+        <h3 className="font-heading text-lg text-hunting-dark mb-2 line-clamp-2 group-hover:text-hunting-orange transition-colors">
+          {title}
+        </h3>
+
+        <div className="space-y-2">
+          <p className="text-sm text-hunting-slate/70">
+            Par <span className="font-semibold text-hunting-gold">{uploaderName}</span>
+          </p>
+          {eventDate && (
+            <p className="text-xs text-hunting-gold/70">
+              {eventDate}
+            </p>
+          )}
+        </div>
       </div>
     </div>
   );

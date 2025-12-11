@@ -73,85 +73,146 @@ export default function Galerie() {
     <>
       <Header />
       <main className="min-h-screen">
-        <section className="hunting-header text-white py-12">
-          <div className="container mx-auto px-4">
-            <h1 className="text-4xl font-serif font-bold">Galerie de souvenirs</h1>
-            <p className="text-hunting-accent mt-2">Moments mémorables de notre groupe</p>
+        {/* HEADER SECTION */}
+        <section className="bg-gradient-forest text-white py-16">
+          <div className="section-container">
+            <h1 className="font-heading text-5xl mb-3 uppercase tracking-wider">
+              Galerie de Souvenirs
+            </h1>
+            <p className="text-lg text-hunting-gold opacity-90">
+              Moments mémorables et précieux de notre communauté de chasse
+            </p>
           </div>
         </section>
 
-        <section className="container mx-auto px-4 py-12">
-          {/* Filters */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
-            <div>
-              <label className="block text-sm font-semibold text-hunting-dark mb-2">
-                Catégorie
-              </label>
-              <select
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-                className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:border-hunting-orange"
-              >
-                <option value="all">Toutes les catégories</option>
-                {categories.map((cat) => (
-                  <option key={cat} value={cat}>
-                    {cat}
-                  </option>
-                ))}
-              </select>
-            </div>
+        {/* FILTERS SECTION */}
+        <section className="section-padding bg-white border-b border-hunting-gold/20">
+          <div className="section-container">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {/* Catégorie Filter */}
+              <div>
+                <label className="block text-sm font-bold uppercase tracking-wider text-hunting-slate mb-3">
+                  Catégorie
+                </label>
+                <select
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  className="form-input"
+                >
+                  <option value="all">Toutes les catégories</option>
+                  {categories.map((cat) => (
+                    <option key={cat} value={cat}>
+                      {cat}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-            <div>
-              <label className="block text-sm font-semibold text-hunting-dark mb-2">
-                Année
-              </label>
-              <select
-                value={selectedYear}
-                onChange={(e) => setSelectedYear(e.target.value)}
-                className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:border-hunting-orange"
-              >
-                <option value="all">Toutes les années</option>
-                {years.map((year) => (
-                  <option key={year} value={year}>
-                    {year}
-                  </option>
-                ))}
-              </select>
+              {/* Année Filter */}
+              <div>
+                <label className="block text-sm font-bold uppercase tracking-wider text-hunting-slate mb-3">
+                  Année
+                </label>
+                <select
+                  value={selectedYear}
+                  onChange={(e) => setSelectedYear(e.target.value)}
+                  className="form-input"
+                >
+                  <option value="all">Toutes les années</option>
+                  {years.map((year) => (
+                    <option key={year} value={year}>
+                      {year}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Results Count */}
+              <div className="flex items-end">
+                <p className="text-hunting-gold font-semibold text-lg">
+                  {filteredMemories.length} souvenir{filteredMemories.length !== 1 ? 's' : ''}
+                </p>
+              </div>
+
+              {/* Reset Button */}
+              <div className="flex items-end justify-end">
+                <button
+                  onClick={() => {
+                    setSelectedCategory('all');
+                    setSelectedYear('all');
+                  }}
+                  className="btn-ghost text-sm"
+                >
+                  Réinitialiser
+                </button>
+              </div>
             </div>
           </div>
+        </section>
 
-          {/* Gallery grid */}
-          {loading ? (
-            <div className="text-center py-20">
-              <p className="text-gray-600">Chargement...</p>
-            </div>
-          ) : filteredMemories.length === 0 ? (
-            <div className="text-center py-20">
-              <p className="text-gray-600 text-lg">
-                Aucun souvenir trouvé avec ces filtres.
+        {/* GALLERY GRID SECTION */}
+        <section className="section-padding bg-hunting-cream">
+          <div className="section-container">
+            {loading ? (
+              <div className="text-center py-20">
+                <div className="inline-block">
+                  <div className="animate-spin rounded-full h-12 w-12 border-4 border-hunting-gold border-t-hunting-orange mb-4" />
+                  <p className="text-hunting-slate font-semibold">Chargement des souvenirs...</p>
+                </div>
+              </div>
+            ) : filteredMemories.length === 0 ? (
+              <div className="card-premium p-12 text-center bg-white">
+                <div className="text-6xl mb-4">📷</div>
+                <h3 className="font-heading text-2xl text-hunting-dark mb-2">
+                  Aucun souvenir trouvé
+                </h3>
+                <p className="text-hunting-slate/70 mb-6">
+                  Essayez de modifier vos filtres ou soumettez votre propre souvenir!
+                </p>
+                <a href="/upload" className="btn-primary">
+                  Ajouter un Souvenir
+                </a>
+              </div>
+            ) : (
+              <div className="gallery-masonry">
+                {filteredMemories.map((memory) => (
+                  <div key={memory.id} className="gallery-item">
+                    <MemoryCard
+                      title={memory.title}
+                      image={
+                        memory.photos[0]?.thumbnailPath || '/placeholder.jpg'
+                      }
+                      category={memory.category || 'Général'}
+                      uploaderName={memory.uploaderName}
+                      eventDate={
+                        memory.eventDate
+                          ? new Date(memory.eventDate).toLocaleDateString('fr-CA')
+                          : undefined
+                      }
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* CTA SECTION */}
+        {filteredMemories.length > 0 && (
+          <section className="section-padding bg-gradient-warm text-white text-center">
+            <div className="section-container max-w-2xl">
+              <h2 className="font-heading text-4xl mb-4 uppercase tracking-wider">
+                Partagez Votre Moment
+              </h2>
+              <p className="text-lg mb-8 opacity-95">
+                Vous avez une belle photo ou un souvenir? Rejoignez-nous et faites partie de cette galerie!
               </p>
+              <a href="/upload" className="btn-primary">
+                Soumettre un Souvenir
+              </a>
             </div>
-          ) : (
-            <div className="gallery-grid">
-              {filteredMemories.map((memory) => (
-                <MemoryCard
-                  key={memory.id}
-                  title={memory.title}
-                  image={
-                    memory.photos[0]?.thumbnailPath || '/placeholder.jpg'
-                  }
-                  category={memory.category || 'Général'}
-                  uploaderName={memory.uploaderName}
-                  eventDate={
-                    memory.eventDate
-                      ? new Date(memory.eventDate).toLocaleDateString('fr-CA')
-                      : undefined
-                  }
-                />
-              ))}
-            </div>
-          )}
-        </section>
+          </section>
+        )}
       </main>
       <Footer />
     </>

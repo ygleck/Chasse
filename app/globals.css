@@ -1,46 +1,155 @@
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* Root styles */
 html {
   scroll-behavior: smooth;
 }
 
-/* Custom hunting theme styles */
 body {
-  @apply bg-gradient-to-b from-slate-50 to-gray-100;
+  @apply bg-hunting-cream text-hunting-slate font-sans;
 }
 
-/* Wood texture-like effect for headers */
-.hunting-header {
-  @apply bg-gradient-to-b from-hunting-dark to-hunting-light shadow-lg;
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+  @apply font-heading font-bold tracking-wide;
 }
 
-/* Card styling for trophy/memory displays */
-.hunting-card {
-  @apply bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 border border-hunting-accent/20;
+h1 {
+  @apply text-4xl md:text-5xl lg:text-6xl;
 }
 
-/* Badge styling */
-.hunting-badge {
-  @apply inline-block px-3 py-1 bg-hunting-orange text-white rounded-full text-sm font-semibold;
+h2 {
+  @apply text-3xl md:text-4xl;
 }
 
-/* Button styling */
+h3 {
+  @apply text-2xl md:text-3xl;
+}
+
+/* Custom Components */
+
+/* Header & Navigation */
+.header-premium {
+  @apply sticky top-0 z-50 bg-hunting-dark/95 backdrop-blur-md border-b border-hunting-gold/20 shadow-lg;
+}
+
+.nav-link {
+  @apply relative text-white font-semibold transition-colors hover:text-hunting-orange;
+}
+
+.nav-link::after {
+  @apply absolute bottom-0 left-0 w-0 h-0.5 bg-hunting-orange transition-all duration-300;
+  content: '';
+}
+
+.nav-link:hover::after {
+  @apply w-full;
+}
+
+/* Hero Section */
+.hero-overlay {
+  @apply absolute inset-0 bg-black/40;
+}
+
+.hero-content {
+  @apply relative z-10;
+}
+
+/* Cards */
+.card-premium {
+  @apply bg-white rounded-xl shadow-md hover:shadow-2xl transition-all duration-300 border border-hunting-gold/10 overflow-hidden group;
+}
+
+.card-image {
+  @apply w-full h-64 bg-gradient-to-br from-hunting-forest to-hunting-dark overflow-hidden;
+}
+
+.card-image img {
+  @apply w-full h-full object-cover group-hover:scale-110 transition-transform duration-300;
+}
+
+.card-hover {
+  @apply hover:translate-y-(-2px) hover:shadow-2xl transition-all duration-300;
+}
+
+/* Buttons */
 .btn-primary {
-  @apply px-6 py-2 bg-hunting-orange text-white rounded-lg font-semibold hover:bg-orange-700 transition-colors;
+  @apply px-6 py-3 bg-hunting-orange text-white font-bold rounded-lg hover:bg-orange-700 transition-all duration-300 shadow-md hover:shadow-lg active:scale-95;
 }
 
 .btn-secondary {
-  @apply px-6 py-2 bg-hunting-dark text-white rounded-lg font-semibold hover:bg-hunting-light transition-colors;
+  @apply px-6 py-3 bg-hunting-dark text-white font-bold rounded-lg hover:bg-hunting-slate transition-all duration-300 shadow-md hover:shadow-lg;
 }
 
-/* Gallery grid */
-.gallery-grid {
-  @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6;
+.btn-outline {
+  @apply px-6 py-3 border-2 border-hunting-orange text-hunting-orange font-bold rounded-lg hover:bg-hunting-orange hover:text-white transition-all duration-300;
 }
 
-/* Record trophy card */
-.trophy-card {
-  @apply hunting-card overflow-hidden hover:scale-105 transition-transform duration-300;
+.btn-ghost {
+  @apply px-6 py-3 text-hunting-dark font-bold rounded-lg hover:bg-hunting-cream transition-all duration-300;
+}
+
+/* Gallery Grid */
+.gallery-masonry {
+  @apply columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-6;
+}
+
+.gallery-item {
+  @apply break-inside-avoid mb-6;
+}
+
+/* Badges & Tags */
+.badge-primary {
+  @apply inline-block px-4 py-1.5 bg-hunting-orange text-white text-xs font-bold rounded-full uppercase tracking-wider;
+}
+
+.badge-secondary {
+  @apply inline-block px-4 py-1.5 bg-hunting-forest text-white text-xs font-bold rounded-full uppercase tracking-wider;
+}
+
+.badge-outline {
+  @apply inline-block px-4 py-1.5 border-2 border-hunting-orange text-hunting-orange text-xs font-bold rounded-full uppercase tracking-wider;
+}
+
+/* Section spacing */
+.section-padding {
+  @apply py-16 md:py-24;
+}
+
+.section-container {
+  @apply container mx-auto px-4 md:px-8;
+}
+
+/* Divider */
+.divider {
+  @apply h-0.5 bg-gradient-to-r from-transparent via-hunting-gold to-transparent;
+}
+
+/* Form elements */
+.form-input {
+  @apply w-full px-4 py-3 bg-hunting-cream border-2 border-hunting-sand rounded-lg font-sans transition-all duration-300 focus:border-hunting-orange focus:outline-none focus:ring-2 focus:ring-hunting-orange/20;
+}
+
+.form-textarea {
+  @apply w-full px-4 py-3 bg-hunting-cream border-2 border-hunting-sand rounded-lg font-sans resize-none transition-all duration-300 focus:border-hunting-orange focus:outline-none focus:ring-2 focus:ring-hunting-orange/20;
+}
+
+/* Loading skeleton */
+.skeleton {
+  @apply animate-pulse bg-gradient-to-r from-hunting-sand to-hunting-gold/30;
+}
+
+/* Responsive utilities */
+@media (max-width: 640px) {
+  h1 {
+    @apply text-3xl;
+  }
+  
+  h2 {
+    @apply text-2xl;
+  }
 }

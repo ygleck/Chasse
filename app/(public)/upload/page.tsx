@@ -7,21 +7,25 @@ import { useState } from 'react';
 
 type UploadType = 'souvenir' | 'record' | null;
 
+const SOUVENIR_CATEGORIES = ['Camp', 'Trip', 'Trail cam', 'Aménagement', 'Soirée', 'Autre'];
+const SPECIES = ['Orignal', 'Chevreuil', 'Ours', 'Petit gibier', 'Canard', 'Oie', 'Autre'];
+const WEAPON_TYPES = ['Carabine', 'Arc', 'Arbalète', 'Fusil à plomb', 'Autre'];
+
 export default function Upload() {
   const [type, setType] = useState<UploadType>(null);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
-
+  const [files, setFiles] = useState<File[]>([]);
+  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
     uploaderName: '',
     uploaderEmail: '',
-    category: '', // for souvenir
-    eventDate: '', // for souvenir
-    participants: '', // for souvenir
-    species: '', // for record
-    huntDate: '', // for record
+    category: '',
+    eventDate: '',
+    species: '',
+    huntDate: '',
     region: '',
     weight: '',
     points: '',
@@ -29,62 +33,22 @@ export default function Upload() {
     caliber: '',
   });
 
-  const [files, setFiles] = useState<File[]>([]);
-  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
-
-  const SOUVENIR_CATEGORIES = [
-    'Camp',
-    'Trip',
-    'Trail cam',
-    'Aménagement',
-    'Soirée',
-    'Autre',
-  ];
-
-  const SPECIES = [
-    'Orignal',
-    'Chevreuil',
-    'Ours',
-    'Petit gibier',
-    'Canard',
-    'Oie',
-    'Autre',
-  ];
-
-  const WEAPON_TYPES = [
-    'Carabine',
-    'Arc',
-    'Arbalète',
-    'Fusil à plomb',
-    'Autre',
-  ];
-
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = Array.from(e.target.files || []);
-
     if (selectedFiles.length + files.length > 5) {
-      setMessage({
-        text: 'Maximum 5 photos par soumission',
-        type: 'error',
-      });
+      setMessage({ text: 'Maximum 5 photos par soumission', type: 'error' });
       return;
     }
 
-    // Validate file sizes (10MB max per file)
     const validFiles = selectedFiles.filter((file) => {
       if (file.size > 10 * 1024 * 1024) {
-        setMessage({
-          text: `${file.name} est trop volumineux (max 10MB)`,
-          type: 'error',
-        });
+        setMessage({ text: `${file.name} est trop volumineux (max 10MB)`, type: 'error' });
         return false;
       }
       return true;
     });
 
     setFiles([...files, ...validFiles]);
-
-    // Create preview URLs
     validFiles.forEach((file) => {
       const reader = new FileReader();
       reader.onload = (e) => {
@@ -101,87 +65,41 @@ export default function Upload() {
     setPreviewUrls((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
-  ) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setMessage(null);
+    if (!type) return;
 
-    if (!type) {
-      setMessage({ text: 'Veuillez sélectionner un type', type: 'error' });
+    if (!formData.title || !formData.uploaderName || files.length === 0) {
+      setMessage({ text: 'Veuillez remplir tous les champs obligatoires', type: 'error' });
       return;
     }
 
-    if (!formData.title.trim()) {
-      setMessage({ text: 'Le titre est requis', type: 'error' });
-      return;
-    }
-
-    if (!formData.uploaderName.trim()) {
-      setMessage({ text: 'Votre nom est requis', type: 'error' });
-      return;
-    }
-
-    if (files.length === 0) {
-      setMessage({ text: 'Vous devez télécharger au moins une photo', type: 'error' });
-      return;
-    }
-
-    setLoading(true);
+    const form = new FormData();
+    form.append('type', type);
+    Object.entries(formData).forEach(([key, value]) => {
+      if (value) form.append(key, value);
+    });
+    files.forEach((file) => form.append('photos', file));
 
     try {
-      const uploadFormData = new FormData();
-      uploadFormData.append('type', type);
-      uploadFormData.append('title', formData.title);
-      uploadFormData.append('description', formData.description);
-      uploadFormData.append('uploaderName', formData.uploaderName);
-      uploadFormData.append('uploaderEmail', formData.uploaderEmail);
-
-      if (type === 'souvenir') {
-        uploadFormData.append('category', formData.category);
-        uploadFormData.append('eventDate', formData.eventDate);
-        uploadFormData.append('participants', formData.participants);
-      } else {
-        uploadFormData.append('species', formData.species);
-        uploadFormData.append('huntDate', formData.huntDate);
-        uploadFormData.append('region', formData.region);
-        uploadFormData.append('weight', formData.weight);
-        uploadFormData.append('points', formData.points);
-        uploadFormData.append('weaponType', formData.weaponType);
-        uploadFormData.append('caliber', formData.caliber);
-      }
-
-      files.forEach((file) => {
-        uploadFormData.append('photos', file);
-      });
-
+      setLoading(true);
       const response = await fetch('/api/uploads', {
         method: 'POST',
-        body: uploadFormData,
+        body: form,
       });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Erreur lors de la soumission');
-      }
-
+      if (!response.ok) throw new Error('Erreur');
       setMessage({
         text: 'Soumission reçue! Elle sera modérée avant publication.',
         type: 'success',
       });
-
-      // Reset form
       setType(null);
+      setFiles([]);
+      setPreviewUrls([]);
       setFormData({
         title: '',
         description: '',
@@ -189,7 +107,6 @@ export default function Upload() {
         uploaderEmail: '',
         category: '',
         eventDate: '',
-        participants: '',
         species: '',
         huntDate: '',
         region: '',
@@ -198,13 +115,8 @@ export default function Upload() {
         weaponType: '',
         caliber: '',
       });
-      setFiles([]);
-      setPreviewUrls([]);
-    } catch (error) {
-      setMessage({
-        text: error instanceof Error ? error.message : 'Erreur lors de la soumission',
-        type: 'error',
-      });
+    } catch {
+      setMessage({ text: 'Erreur lors de la soumission', type: 'error' });
     } finally {
       setLoading(false);
     }
@@ -214,390 +126,243 @@ export default function Upload() {
     <>
       <Header />
       <main className="min-h-screen">
-        <section className="hunting-header text-white py-12">
-          <div className="container mx-auto px-4">
-            <h1 className="text-4xl font-serif font-bold">Soumettre une photo</h1>
-            <p className="text-hunting-accent mt-2">
-              Partagez vos souvenirs ou vos records avec la communauté
+        {/* HEADER */}
+        <section className="bg-gradient-forest text-white py-16">
+          <div className="section-container">
+            <h1 className="font-heading text-5xl mb-3 uppercase tracking-wider">
+              Soumettre une Contribution
+            </h1>
+            <p className="text-lg text-hunting-gold opacity-90">
+              Partagez vos souvenirs ou records avec la communauté
             </p>
           </div>
         </section>
 
-        <section className="container mx-auto px-4 py-12 max-w-2xl">
-          {/* Type selection */}
-          {!type ? (
-            <div className="space-y-6 mb-12">
-              <h2 className="text-2xl font-bold text-hunting-dark">
-                Quel type de contenu souhaitez-vous partager?
+        {/* TYPE SELECTION */}
+        {!type ? (
+          <section className="section-padding bg-hunting-cream">
+            <div className="section-container max-w-4xl">
+              <h2 className="text-center mb-12 uppercase tracking-wider">
+                Quel type de soumission?
               </h2>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {/* SOUVENIR */}
                 <button
                   onClick={() => setType('souvenir')}
-                  className="hunting-card p-8 hover:border-hunting-orange border-2 border-transparent transition-all"
+                  className="card-premium card-hover group p-8 text-center"
                 >
-                  <div className="text-4xl mb-4">📸</div>
-                  <h3 className="text-xl font-bold text-hunting-dark mb-2">
+                  <div className="text-6xl mb-4">📸</div>
+                  <h3 className="font-heading text-3xl mb-3 text-hunting-dark uppercase group-hover:text-hunting-orange transition-colors">
                     Souvenir
                   </h3>
-                  <p className="text-gray-600 text-sm">
-                    Photos du camp, trip, moments de groupe, trail cam,
-                    aménagements...
+                  <p className="text-hunting-slate/70 leading-relaxed mb-6">
+                    Partagez des moments mémorables: camp, sorties, trail cam, aménagements, soirées...
                   </p>
+                  <span className="badge-primary">Sélectionner</span>
                 </button>
 
+                {/* RECORD */}
                 <button
                   onClick={() => setType('record')}
-                  className="hunting-card p-8 hover:border-hunting-orange border-2 border-transparent transition-all"
+                  className="card-premium card-hover group p-8 text-center"
                 >
-                  <div className="text-4xl mb-4">🏆</div>
-                  <h3 className="text-xl font-bold text-hunting-dark mb-2">
-                    Record / Trophée
+                  <div className="text-6xl mb-4">🏆</div>
+                  <h3 className="font-heading text-3xl mb-3 text-hunting-dark uppercase group-hover:text-hunting-orange transition-colors">
+                    Record
                   </h3>
-                  <p className="text-gray-600 text-sm">
-                    Partagez vos plus beaux trophées avec détails de la chasse
+                  <p className="text-hunting-slate/70 leading-relaxed mb-6">
+                    Votre meilleur trophée: espèce, poids, points, région, date de la chasse...
                   </p>
+                  <span className="badge-secondary">Sélectionner</span>
                 </button>
               </div>
             </div>
-          ) : (
-            <>
-              {/* Rules reminder */}
-              <div className="bg-amber-50 border-l-4 border-hunting-orange p-4 mb-8 rounded">
-                <h3 className="font-bold text-hunting-dark mb-2">
-                  Rappel des règles de la communauté
-                </h3>
-                <ul className="text-sm text-gray-700 space-y-1">
-                  <li>✓ Visages: acceptés (consentement requis)</li>
-                    <li>✗ Armes pointées sur quelqu’un</li>
-                  <li>✗ Alcool + armes de façon dangereuse</li>
-                  <li>✗ Contenu gore gratuit</li>
-                  <li>✗ Infos personnelles sensibles (emails, adresses)</li>
-                </ul>
+          </section>
+        ) : (
+          <section className="section-padding bg-hunting-cream">
+            <div className="section-container max-w-2xl">
+              {/* TYPE HEADER */}
+              <div className="mb-8">
+                <button
+                  onClick={() => {
+                    setType(null);
+                    setMessage(null);
+                  }}
+                  className="text-hunting-gold hover:text-hunting-orange font-semibold mb-4 transition-colors"
+                >
+                  ← Retour
+                </button>
+                <h2 className="uppercase tracking-wider mb-2">
+                  {type === 'souvenir' ? '📸 Ajouter un Souvenir' : '🏆 Ajouter un Record'}
+                </h2>
               </div>
 
+              {/* MESSAGE */}
               {message && (
                 <div
-                  className={`p-4 rounded-lg mb-8 ${
-                    message.type === 'success'
-                      ? 'bg-green-100 text-green-800'
-                      : 'bg-red-100 text-red-800'
+                  className={`card-premium p-4 mb-6 ${
+                    message.type === 'success' ? 'border-hunting-orange/50 bg-hunting-cream' : 'border-red-500/50 bg-red-50'
                   }`}
                 >
-                  {message.text}
+                  <p className={message.type === 'success' ? 'text-hunting-orange' : 'text-red-600'}>
+                    {message.text}
+                  </p>
                 </div>
               )}
 
-              <form onSubmit={handleSubmit} className="space-y-6">
-                {/* Common fields */}
-                <div>
-                  <label className="block text-sm font-semibold text-hunting-dark mb-2">
-                    Titre *
+              {/* FORM */}
+              <form onSubmit={handleSubmit} className="card-premium bg-white p-8">
+                {/* PHOTOS */}
+                <div className="mb-8">
+                  <label className="block text-sm font-bold uppercase tracking-wider text-hunting-slate mb-3">
+                    Photos (1-5 obligatoires) *
                   </label>
-                  <input
-                    type="text"
-                    name="title"
-                    value={formData.title}
-                    onChange={handleChange}
-                    placeholder="Ex: Belle journée au camp"
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-hunting-orange"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-hunting-dark mb-2">
-                    Description
+                  <label className="block border-2 border-dashed border-hunting-gold rounded-lg p-8 text-center cursor-pointer hover:border-hunting-orange transition-colors">
+                    <svg className="w-12 h-12 mx-auto mb-3 text-hunting-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                    </svg>
+                    <p className="text-hunting-slate font-semibold">Cliquez ou glissez vos photos ici</p>
+                    <p className="text-sm text-hunting-gold mt-1">JPG, PNG, WebP - Max 10MB par photo</p>
+                    <input type="file" multiple accept="image/*" onChange={handleFileChange} className="hidden" />
                   </label>
-                    <textarea
-                    name="description"
-                    value={formData.description}
-                    onChange={handleChange}
-                    placeholder="Racontez l’histoire..."
-                    rows={4}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-hunting-orange"
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-semibold text-hunting-dark mb-2">
-                      Votre nom *
-                    </label>
-                    <input
-                      type="text"
-                      name="uploaderName"
-                      value={formData.uploaderName}
-                      onChange={handleChange}
-                      placeholder="Jean Chasseur"
-                      className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-hunting-orange"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-semibold text-hunting-dark mb-2">
-                      Email (confidentiel)
-                    </label>
-                    <input
-                      type="email"
-                      name="uploaderEmail"
-                      value={formData.uploaderEmail}
-                      onChange={handleChange}
-                      placeholder="votre@email.com"
-                      className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-hunting-orange"
-                    />
-                  </div>
-                </div>
-
-                {/* Souvenir specific fields */}
-                {type === 'souvenir' && (
-                  <>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-semibold text-hunting-dark mb-2">
-                          Catégorie
-                        </label>
-                        <select
-                          name="category"
-                          value={formData.category}
-                          onChange={handleChange}
-                          className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-hunting-orange"
-                        >
-                          <option value="">Sélectionner...</option>
-                          {SOUVENIR_CATEGORIES.map((cat) => (
-                            <option key={cat} value={cat}>
-                              {cat}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-semibold text-hunting-dark mb-2">
-                          Date de l’événement
-                        </label>
-                        <input
-                          type="date"
-                          name="eventDate"
-                          value={formData.eventDate}
-                          onChange={handleChange}
-                          className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-hunting-orange"
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-semibold text-hunting-dark mb-2">
-                        Participants
-                      </label>
-                      <input
-                        type="text"
-                        name="participants"
-                        value={formData.participants}
-                        onChange={handleChange}
-                        placeholder="Noms des gars présents..."
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-hunting-orange"
-                      />
-                    </div>
-                  </>
-                )}
-
-                {/* Record specific fields */}
-                {type === 'record' && (
-                  <>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-semibold text-hunting-dark mb-2">
-                          Espèce *
-                        </label>
-                        <select
-                          name="species"
-                          value={formData.species}
-                          onChange={handleChange}
-                          className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-hunting-orange"
-                          required
-                        >
-                          <option value="">Sélectionner...</option>
-                          {SPECIES.map((s) => (
-                            <option key={s} value={s}>
-                              {s}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-semibold text-hunting-dark mb-2">
-                          Date de la chasse
-                        </label>
-                        <input
-                          type="date"
-                          name="huntDate"
-                          value={formData.huntDate}
-                          onChange={handleChange}
-                          className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-hunting-orange"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-semibold text-hunting-dark mb-2">
-                          Région/Zone
-                        </label>
-                        <input
-                          type="text"
-                          name="region"
-                          value={formData.region}
-                          onChange={handleChange}
-                          placeholder="Ex: Mauricie"
-                          className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-hunting-orange"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-semibold text-hunting-dark mb-2">
-                          Poids (lb)
-                        </label>
-                        <input
-                          type="number"
-                          name="weight"
-                          value={formData.weight}
-                          onChange={handleChange}
-                          placeholder="250"
-                          className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-hunting-orange"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-semibold text-hunting-dark mb-2">
-                          Points
-                        </label>
-                        <input
-                          type="number"
-                          name="points"
-                          value={formData.points}
-                          onChange={handleChange}
-                          placeholder="140"
-                          className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-hunting-orange"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-semibold text-hunting-dark mb-2">
-                          Type d’arme
-                        </label>
-                        <select
-                          name="weaponType"
-                          value={formData.weaponType}
-                          onChange={handleChange}
-                          className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-hunting-orange"
-                        >
-                          <option value="">Sélectionner...</option>
-                          {WEAPON_TYPES.map((w) => (
-                            <option key={w} value={w}>
-                              {w}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-semibold text-hunting-dark mb-2">
-                        Calibre / Setup
-                      </label>
-                      <input
-                        type="text"
-                        name="caliber"
-                        value={formData.caliber}
-                        onChange={handleChange}
-                        placeholder="Ex: 7mm Rem Mag, Burris Predator 4"
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-hunting-orange"
-                      />
-                    </div>
-                  </>
-                )}
-
-                {/* File upload */}
-                <div>
-                  <label className="block text-sm font-semibold text-hunting-dark mb-2">
-                    Photos (1-5, max 10MB chacune) *
-                  </label>
-                  <div className="border-2 border-dashed border-hunting-kaki rounded-lg p-8 text-center cursor-pointer hover:bg-gray-50 transition-colors">
-                    <input
-                      type="file"
-                      multiple
-                      accept="image/*"
-                      onChange={handleFileChange}
-                      className="hidden"
-                      id="file-input"
-                    />
-                    <label htmlFor="file-input" className="cursor-pointer block">
-                      <div className="text-3xl mb-2">📷</div>
-                      <p className="font-semibold text-hunting-dark">
-                        Cliquez ou glissez vos photos
-                      </p>
-                      <p className="text-xs text-gray-600 mt-1">
-                        JPG, PNG, WebP acceptés
-                      </p>
-                    </label>
-                  </div>
-                </div>
-
-                {/* Preview */}
-                {previewUrls.length > 0 && (
-                  <div>
-                    <label className="block text-sm font-semibold text-hunting-dark mb-2">
-                      Aperçu ({files.length}/5)
-                    </label>
-                    <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                      {previewUrls.map((url, index) => (
-                        <div key={index} className="relative">
-                          <Image
-                            src={url}
-                            alt={`Preview ${index}`}
-                            width={200}
-                            height={200}
-                            className="w-full h-24 object-cover rounded-lg"
-                          />
+                  
+                  {previewUrls.length > 0 && (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mt-6">
+                      {previewUrls.map((url, i) => (
+                        <div key={i} className="relative group">
+                          <img src={url} alt="" className="w-full h-32 object-cover rounded-lg" />
                           <button
                             type="button"
-                            onClick={() => removeFile(index)}
-                            className="absolute top-1 right-1 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-700"
+                            onClick={() => removeFile(i)}
+                            className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity"
                           >
                             ✕
                           </button>
                         </div>
                       ))}
                     </div>
+                  )}
+                </div>
+
+                {/* COMMON FIELDS */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
+                  <div>
+                    <label className="block text-sm font-bold uppercase tracking-wider text-hunting-slate mb-2">
+                      Titre *
+                    </label>
+                    <input type="text" name="title" value={formData.title} onChange={handleInputChange} className="form-input" required />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold uppercase tracking-wider text-hunting-slate mb-2">
+                      Votre Nom *
+                    </label>
+                    <input type="text" name="uploaderName" value={formData.uploaderName} onChange={handleInputChange} className="form-input" required />
+                  </div>
+                </div>
+
+                <div className="mb-6">
+                  <label className="block text-sm font-bold uppercase tracking-wider text-hunting-slate mb-2">
+                    Description
+                  </label>
+                  <textarea name="description" value={formData.description} onChange={handleInputChange} className="form-textarea h-24" />
+                </div>
+
+                {/* SOUVENIR FIELDS */}
+                {type === 'souvenir' && (
+                  <div className="space-y-6 mb-6 p-6 bg-hunting-cream rounded-lg border-l-4 border-hunting-orange">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                      <div>
+                        <label className="block text-sm font-bold uppercase tracking-wider text-hunting-slate mb-2">
+                          Catégorie
+                        </label>
+                        <select name="category" value={formData.category} onChange={handleInputChange} className="form-input">
+                          <option value="">Sélectionner...</option>
+                          {SOUVENIR_CATEGORIES.map((cat) => (
+                            <option key={cat} value={cat}>{cat}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-bold uppercase tracking-wider text-hunting-slate mb-2">
+                          Date
+                        </label>
+                        <input type="date" name="eventDate" value={formData.eventDate} onChange={handleInputChange} className="form-input" />
+                      </div>
+                    </div>
                   </div>
                 )}
 
-                {/* Buttons */}
+                {/* RECORD FIELDS */}
+                {type === 'record' && (
+                  <div className="space-y-6 mb-6 p-6 bg-hunting-cream rounded-lg border-l-4 border-hunting-orange">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                      <div>
+                        <label className="block text-sm font-bold uppercase tracking-wider text-hunting-slate mb-2">
+                          Espèce
+                        </label>
+                        <select name="species" value={formData.species} onChange={handleInputChange} className="form-input">
+                          <option value="">Sélectionner...</option>
+                          {SPECIES.map((s) => (
+                            <option key={s} value={s}>{s}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-bold uppercase tracking-wider text-hunting-slate mb-2">
+                          Région
+                        </label>
+                        <input type="text" name="region" value={formData.region} onChange={handleInputChange} className="form-input" />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-bold uppercase tracking-wider text-hunting-slate mb-2">
+                          Date de chasse
+                        </label>
+                        <input type="date" name="huntDate" value={formData.huntDate} onChange={handleInputChange} className="form-input" />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-bold uppercase tracking-wider text-hunting-slate mb-2">
+                          Poids (kg)
+                        </label>
+                        <input type="number" name="weight" value={formData.weight} onChange={handleInputChange} className="form-input" />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-bold uppercase tracking-wider text-hunting-slate mb-2">
+                          Points
+                        </label>
+                        <input type="number" name="points" value={formData.points} onChange={handleInputChange} className="form-input" />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-bold uppercase tracking-wider text-hunting-slate mb-2">
+                          Type d'arme
+                        </label>
+                        <select name="weaponType" value={formData.weaponType} onChange={handleInputChange} className="form-input">
+                          <option value="">Sélectionner...</option>
+                          {WEAPON_TYPES.map((w) => (
+                            <option key={w} value={w}>{w}</option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* SUBMIT */}
                 <div className="flex gap-4">
+                  <button type="submit" disabled={loading} className="btn-primary flex-1">
+                    {loading ? 'Envoi en cours...' : 'Soumettre'}
+                  </button>
                   <button
                     type="button"
                     onClick={() => setType(null)}
-                    className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-colors"
+                    className="btn-secondary flex-1"
                   >
-                    Retour
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="flex-1 btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {loading ? 'Envoi en cours...' : 'Soumettre'}
+                    Annuler
                   </button>
                 </div>
               </form>
-            </>
-          )}
-        </section>
+            </div>
+          </section>
+        )}
       </main>
       <Footer />
     </>

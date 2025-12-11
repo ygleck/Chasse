@@ -1,42 +1,94 @@
-import Link from 'next/link';
+'use client';
 
-/**
- * Header component avec logo placeholder et navigation
- * TODO: Remplacer le placeholder par un vrai logo (tête d'orignal, panache, etc.)
- */
+import Link from 'next/link';
+import { useState } from 'react';
+
 export function Header() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const navLinks = [
+    { href: '/', label: 'Accueil' },
+    { href: '/galerie', label: 'Galerie' },
+    { href: '/records', label: 'Hall of Fame' },
+    { href: '/upload', label: 'Soumettre' },
+  ];
+
   return (
-    <header className="hunting-header text-white sticky top-0 z-50">
-      <div className="container mx-auto px-4 py-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            {/* Placeholder logo */}
-            <div className="w-12 h-12 bg-hunting-orange rounded-full flex items-center justify-center font-bold text-lg">
+    <header className="header-premium">
+      <div className="section-container">
+        <div className="flex items-center justify-between py-4">
+          {/* Logo & Branding */}
+          <Link href="/" className="flex items-center gap-3 group">
+            <div className="w-12 h-12 bg-gradient-to-br from-hunting-orange to-orange-700 rounded-full flex items-center justify-center font-bold text-lg text-white shadow-lg group-hover:shadow-orange-500/50 transition-shadow">
               🦌
             </div>
-            <h1 className="text-3xl font-serif font-bold">Groupe de Chasse</h1>
-          </div>
-          
+            <div>
+              <h1 className="text-white font-heading text-2xl tracking-wider">
+                CHASSE
+              </h1>
+              <p className="text-hunting-gold text-xs font-semibold tracking-widest">
+                GROUPE
+              </p>
+            </div>
+          </Link>
+
+          {/* Desktop Navigation */}
           <nav className="hidden md:flex gap-8">
-            <Link href="/" className="hover:text-hunting-orange transition-colors">
-              Accueil
-            </Link>
-            <Link href="/galerie" className="hover:text-hunting-orange transition-colors">
-              Galerie
-            </Link>
-            <Link href="/records" className="hover:text-hunting-orange transition-colors">
-              Hall of Fame
-            </Link>
-            <Link href="/upload" className="hover:text-hunting-orange transition-colors">
-              Soumettre
-            </Link>
+            {navLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="nav-link"
+              >
+                {link.label}
+              </Link>
+            ))}
           </nav>
 
-          {/* Mobile menu button */}
-          <div className="md:hidden">
-            <button className="text-2xl">☰</button>
+          {/* Admin Link & Mobile Menu */}
+          <div className="flex items-center gap-4">
+            <Link
+              href="/admin"
+              className="hidden sm:block text-hunting-gold text-sm font-bold uppercase tracking-wider hover:text-hunting-orange transition-colors"
+            >
+              Admin
+            </Link>
+
+            {/* Mobile Menu Button */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden text-white hover:text-hunting-orange transition-colors"
+              aria-label="Toggle menu"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
           </div>
         </div>
+
+        {/* Mobile Navigation */}
+        {mobileMenuOpen && (
+          <nav className="md:hidden pb-4 border-t border-hunting-gold/20 pt-4 space-y-3">
+            {navLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="block text-white hover:text-hunting-orange font-semibold transition-colors py-2"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                {link.label}
+              </Link>
+            ))}
+            <Link
+              href="/admin"
+              className="block text-hunting-gold font-semibold transition-colors py-2 hover:text-hunting-orange"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Admin
+            </Link>
+          </nav>
+        )}
       </div>
     </header>
   );

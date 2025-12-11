@@ -1,66 +1,77 @@
 import Image from 'next/image';
-/**
- * Card component for displaying trophy/record
- */
+
 interface TrophyCardProps {
-  id: string;
   title: string;
   image: string;
   species: string;
-  hunterName: string;
-  year: number;
-  weight?: number;
-  points?: number;
+  uploaderName: string;
+  weight?: number | null;
+  points?: number | null;
+  region?: string | null;
 }
 
 export function TrophyCard({
-  id: _id,
   title,
   image,
   species,
-  hunterName,
-  year,
+  uploaderName,
   weight,
   points,
+  region,
 }: TrophyCardProps) {
   return (
-    <div className="trophy-card cursor-pointer">
-      <div className="relative w-full h-64 overflow-hidden bg-gray-200">
+    <div className="card-premium group cursor-pointer h-full">
+      {/* Image with badge */}
+      <div className="card-image relative">
         <Image
           src={image}
           alt={title}
-          width={800}
-          height={600}
+          width={400}
+          height={300}
           className="w-full h-full object-cover"
         />
-        <div className="absolute top-0 left-0 bg-hunting-orange text-white px-3 py-1 m-2 rounded">
-          🏆 Record
+        <div className="absolute top-3 right-3">
+          <span className="badge-primary text-xs">🏆 RECORD</span>
         </div>
       </div>
-      <div className="p-4">
-        <h3 className="font-bold text-lg text-hunting-dark mb-1">{title}</h3>
-        <p className="text-sm font-semibold text-hunting-kaki mb-3">{species}</p>
-        <div className="flex flex-col gap-2 text-sm mb-3">
-          <div className="flex justify-between">
-            <span className="text-gray-600">Chasseur:</span>
-            <span className="font-semibold text-hunting-dark">{hunterName}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-gray-600">Année:</span>
-            <span className="font-semibold text-hunting-dark">{year}</span>
-          </div>
+
+      {/* Content */}
+      <div className="p-6">
+        <h3 className="font-heading text-lg text-hunting-dark mb-2 line-clamp-2 group-hover:text-hunting-orange transition-colors">
+          {title}
+        </h3>
+
+        <p className="text-sm font-bold text-hunting-forest uppercase tracking-wider mb-4">
+          {species}
+        </p>
+
+        {/* Stats */}
+        <div className="space-y-2 mb-4">
           {weight && (
-            <div className="flex justify-between">
-              <span className="text-gray-600">Poids:</span>
-              <span className="font-semibold text-hunting-orange">{weight} lb</span>
+            <div className="flex justify-between text-sm">
+              <span className="text-hunting-slate/70">Poids:</span>
+              <span className="font-semibold text-hunting-orange">{weight} kg</span>
             </div>
           )}
           {points && (
-            <div className="flex justify-between">
-              <span className="text-gray-600">Points:</span>
+            <div className="flex justify-between text-sm">
+              <span className="text-hunting-slate/70">Points:</span>
               <span className="font-semibold text-hunting-orange">{points}</span>
             </div>
           )}
+          {region && (
+            <div className="flex justify-between text-sm">
+              <span className="text-hunting-slate/70">Région:</span>
+              <span className="font-semibold text-hunting-forest">{region}</span>
+            </div>
+          )}
+        </div>
+
+        {/* Hunter */}
+        <div className="pt-4 border-t border-hunting-gold/20">
+          <p className="text-xs text-hunting-gold font-semibold">
+            Par <span className="text-hunting-dark">{uploaderName}</span>
+          </p>
         </div>
       </div>
     </div>

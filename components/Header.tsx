@@ -14,19 +14,21 @@ export function Header() {
   ];
 
   return (
-    <header className="header-premium">
+    <header className="header-premium border-b border-hunting-gold/30" style={{ 
+      backgroundImage: 'linear-gradient(to bottom, rgba(26, 61, 42, 0.98), rgba(26, 61, 42, 1)), url("data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23d4a574\' fill-opacity=\'0.03\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")'
+    }}>
       <div className="section-container">
-        <div className="flex items-center justify-between py-4">
-          {/* Logo & Branding */}
-          <Link href="/" className="flex items-center gap-3 group">
-            <div className="w-12 h-12 bg-gradient-to-br from-hunting-orange to-orange-700 rounded-full flex items-center justify-center font-bold text-lg text-white shadow-lg group-hover:shadow-orange-500/50 transition-shadow">
+        <div className="flex items-center justify-between py-5">
+          {/* Logo & Branding - Agrandi */}
+          <Link href="/" className="flex items-center gap-4 group">
+            <div className="w-14 h-14 bg-gradient-to-br from-hunting-orange via-orange-600 to-orange-700 rounded-full flex items-center justify-center font-bold text-2xl text-white shadow-xl group-hover:shadow-orange-500/60 group-hover:scale-105 transition-all duration-300">
               🦌
             </div>
             <div>
-              <h1 className="text-white font-heading text-2xl tracking-wider">
+              <h1 className="text-white font-heading text-3xl tracking-wider drop-shadow-lg">
                 CHASSE
               </h1>
-              <p className="text-hunting-gold text-xs font-semibold tracking-widest">
+              <p className="text-hunting-gold text-sm font-bold tracking-widest drop-shadow-md">
                 GROUPE
               </p>
             </div>
@@ -45,13 +47,14 @@ export function Header() {
             ))}
           </nav>
 
-          {/* Admin Link & Mobile Menu */}
+          {/* Admin Badge & Mobile Menu */}
           <div className="flex items-center gap-4">
             <Link
               href="/admin"
-              className="hidden sm:block text-hunting-gold text-sm font-bold uppercase tracking-wider hover:text-hunting-orange transition-colors"
+              className="hidden sm:flex items-center gap-2 px-4 py-2 bg-hunting-gold/20 hover:bg-hunting-orange border border-hunting-gold/40 rounded-lg text-hunting-gold hover:text-white text-sm font-bold uppercase tracking-wider transition-all duration-300 shadow-md hover:shadow-lg"
             >
-              Admin
+              <span>⚙️</span>
+              <span>Admin</span>
             </Link>
 
             {/* Mobile Menu Button */}

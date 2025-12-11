@@ -3,7 +3,7 @@ import { PutObjectCommand, ListObjectsV2Command } from '@aws-sdk/client-s3';
 import sharp from 'sharp';
 import { r2, getPublicBaseUrl } from '@/lib/r2';
 
-export const runtime = 'nodejs';
+export const runtime = 'edge';
 
 /**
  * POST /api/uploads

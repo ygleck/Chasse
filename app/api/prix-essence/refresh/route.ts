@@ -3,6 +3,8 @@
  * Rafraîchir le cache des stations (endpoint sécurisé)
  */
 
+export const runtime = 'edge';
+
 import { NextRequest, NextResponse } from "next/server";
 import * as XLSX from 'xlsx';
 import { cacheStations } from "@/lib/prix-essence/cache/kvCache";

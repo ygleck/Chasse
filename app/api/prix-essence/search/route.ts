@@ -3,6 +3,8 @@
  * Recherche des stations à proximité avec scoring intelligent
  */
 
+export const runtime = 'edge';
+
 import { NextRequest, NextResponse } from "next/server";
 import { scoreStations, calculateAveragePrice } from "@/lib/prix-essence/scoring/scoringEngine";
 import { addDistanceToStations } from "@/lib/prix-essence/geo/distance";

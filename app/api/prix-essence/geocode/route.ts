@@ -3,6 +3,8 @@
  * Convertir une adresse en coordonnées GPS
  */
 
+export const runtime = 'edge';
+
 import { NextRequest, NextResponse } from "next/server";
 import { NominatimProvider } from "@/lib/prix-essence/geo/geocoder";
 

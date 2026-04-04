@@ -3,8 +3,8 @@
  * Stockage des données stations et métadonnées
  */
 
-import type { GasStation, CacheMetadata } from '../../types';
-import { PRIX_ESSENCE_CONFIG } from '../../config';
+import type { GasStation, CacheMetadata } from '../types';
+import { PRIX_ESSENCE_CONFIG } from '../config';
 
 /**
  * Clés KV namespace

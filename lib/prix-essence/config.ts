@@ -54,3 +54,6 @@ export const API_ENDPOINTS = {
   geocode: '/api/prix-essence/geocode',
   refresh: '/api/prix-essence/refresh',
 };
+
+// Export des constants pour accès direct
+export const AUTO_EXPAND_RADII = PRIX_ESSENCE_CONFIG.AUTO_EXPAND_RADII;

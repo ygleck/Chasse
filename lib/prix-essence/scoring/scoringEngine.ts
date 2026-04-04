@@ -8,8 +8,8 @@
  * - Plus bas = mieux pour les deux critères
  */
 
-import type { GasStation, GasStationWithScore, SearchParams, FuelType } from '../../types';
-import { PRIX_ESSENCE_CONFIG } from '../../config';
+import type { GasStation, GasStationWithScore, FuelType } from '../types';
+import { PRIX_ESSENCE_CONFIG } from '../config';
 
 interface Bounds {
   minPrice: number;
@@ -38,6 +38,8 @@ function getPriceForFuel(station: GasStation, fuelType: FuelType): number | null
       ].filter((p): p is number => p !== null && p > 0);
       return prices.length > 0 ? prices.reduce((a, b) => a + b) / prices.length : null;
     }
+    default:
+      return null;
   }
 }
 

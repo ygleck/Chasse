@@ -3,7 +3,7 @@
  * Scraping légal et robuste de la source officielle
  */
 
-import { PRIX_ESSENCE_CONFIG } from '../../config';
+// import { PRIX_ESSENCE_CONFIG } from '../config';
 
 const OFFICIAL_SITE_URL = 'https://regieessencequebec.ca';
 
@@ -126,4 +126,12 @@ export function isValidXLSXUrl(url: string): boolean {
   } catch {
     return false;
   }
+}
+
+/**
+ * Fonction combinée: Détecte et télécharge le dernier XLSX
+ */
+export async function fetchLatestXLSX(): Promise<ArrayBuffer> {
+  const url = await detectLatestXLSXUrl();
+  return downloadXLSXFile(url);
 }

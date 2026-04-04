@@ -4,10 +4,11 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { scoreStations } from "@/lib/prix-essence/scoring/scoringEngine";
-import { calculateDistance, filterByRadius, addDistanceToStations } from "@/lib/prix-essence/geo/distance";
+import { scoreStations, calculateAveragePrice } from "@/lib/prix-essence/scoring/scoringEngine";
+import { addDistanceToStations } from "@/lib/prix-essence/geo/distance";
 import { getCachedStations } from "@/lib/prix-essence/cache/kvCache";
 import { AUTO_EXPAND_RADII } from "@/lib/prix-essence/config";
+import type { GasStation } from "@/lib/prix-essence/types";
 
 export async function POST(request: NextRequest) {
   try {
@@ -33,22 +34,37 @@ export async function POST(request: NextRequest) {
     // Ajouter les distances
     stations = addDistanceToStations(stations, latitude, longitude);
 
-    // Scorer et filtrer
-    const results = scoreStations(stations, fuelType, radius);
+    // Filtrer les stations avec distance valide
+    const stationsWithDistance = stations.filter(s => s.distance !== undefined) as Array<GasStation & { distance: number }>;
 
-    if (results.topStations.length === 0) {
+    // Scorer et filtrer
+    const allResults = scoreStations(stationsWithDistance, fuelType);
+    const filteredResults = allResults.filter(station => station.distance !== undefined && station.distance <= radius);
+
+    if (filteredResults.length === 0) {
       // Auto-expansion si aucun résultat
       for (const expandedRadius of AUTO_EXPAND_RADII) {
         if (expandedRadius > radius) {
-          const expandedResults = scoreStations(stations, fuelType, expandedRadius);
-          if (expandedResults.topStations.length > 0) {
-            expandedResults.expandedRadius = expandedRadius;
-            expandedResults.message = `Aucune station trouvée dans les ${radius} km. Affichage des stations dans les ${expandedRadius} km.`;
-            return NextResponse.json(expandedResults);
+          const expandedFiltered = allResults.filter(station => station.distance !== undefined && station.distance <= expandedRadius);
+          if (expandedFiltered.length > 0) {
+            const results = {
+              bestOption: expandedFiltered[0] || null,
+              topStations: expandedFiltered.slice(0, 10),
+              averagePrice: calculateAveragePrice(expandedFiltered),
+              expandedRadius,
+              message: `Aucune station trouvée dans les ${radius} km. Affichage des stations dans les ${expandedRadius} km.`,
+            };
+            return NextResponse.json(results);
           }
         }
       }
     }
+
+    const results = {
+      bestOption: filteredResults[0] || null,
+      topStations: filteredResults.slice(0, 10),
+      averagePrice: calculateAveragePrice(filteredResults),
+    };
 
     return NextResponse.json(results);
   } catch (error) {

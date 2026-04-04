@@ -4,7 +4,7 @@
  * Exporte les dépendances pour installation séparée
  */
 
-import type { GasStation, XLSXRawData } from '../../types';
+import type { GasStation, XLSXRawData } from '../types';
 
 /**
  * Configuration pour la détection des colonnes
@@ -133,8 +133,8 @@ function normalizeRow(
     switch (normalizedField) {
       case 'latitude':
       case 'longitude':
-        value = parseFloat(String(value));
-        if (isNaN(value)) value = undefined;
+        const numValue = parseFloat(String(value));
+        value = isNaN(numValue) ? undefined : numValue;
         break;
 
       case 'regularPrice':
@@ -142,8 +142,8 @@ function normalizeRow(
       case 'premiumPrice':
         // Nettoyer le prix (peut être "1.23" ou "1,23" en français)
         const priceStr = String(value).replace(',', '.');
-        value = parseFloat(priceStr);
-        if (isNaN(value) || value <= 0) value = null;
+        const priceValue = parseFloat(priceStr);
+        value = isNaN(priceValue) || priceValue <= 0 ? null : priceValue;
         break;
 
       case 'updatedAt':
@@ -178,11 +178,12 @@ function isValidStation(station: Partial<GasStation>): boolean {
     return false;
   }
 
-  // Au moins un prixy doit être présent et valide
-  const hasPrice =
+  // Au moins un prix doit être présent et valide
+  const hasPrice = Boolean(
     (station.regularPrice && station.regularPrice > 0) ||
     (station.dieselPrice && station.dieselPrice > 0) ||
-    (station.premiumPrice && station.premiumPrice > 0);
+    (station.premiumPrice && station.premiumPrice > 0)
+  );
 
   return hasPrice;
 }

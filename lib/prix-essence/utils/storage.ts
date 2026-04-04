@@ -3,15 +3,16 @@
  * Client-side uniquement
  */
 
-import type { LocalStorageData, HistoryEntry, FavoriteStation } from '../../types';
-import { PRIX_ESSENCE_CONFIG } from '../../config';
+import type { LocalStorageData, HistoryEntry, FavoriteStation } from '../types';
+import { FuelType } from '../types';
+import { PRIX_ESSENCE_CONFIG } from '../config';
 
 /**
  * Obtient les données localStorage
  */
 function getStorageData(): LocalStorageData {
   if (typeof window === 'undefined') {
-    return { history: [], favorites: [], preferences: { preferredFuel: 'all', preferredRadius: 20 } };
+    return { history: [], favorites: [], preferences: { preferredFuel: FuelType.ALL, preferredRadius: 20 } };
   }
 
   try {
@@ -21,7 +22,7 @@ function getStorageData(): LocalStorageData {
         history: [],
         favorites: [],
         preferences: {
-          preferredFuel: 'all',
+          preferredFuel: FuelType.ALL,
           preferredRadius: PRIX_ESSENCE_CONFIG.DEFAULT_RADIUS,
         },
       };
@@ -33,7 +34,7 @@ function getStorageData(): LocalStorageData {
     return {
       history: [],
       favorites: [],
-      preferences: { preferredFuel: 'all', preferredRadius: 20 },
+      preferences: { preferredFuel: FuelType.ALL, preferredRadius: 20 },
     };
   }
 }

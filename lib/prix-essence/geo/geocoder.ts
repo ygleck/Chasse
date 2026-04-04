@@ -3,8 +3,8 @@
  * Support multi-provider (Nominatim par défaut, Google Maps optionnel)
  */
 
-import type { GeocodeResult } from '../../types';
-import { PRIX_ESSENCE_CONFIG } from '../../config';
+import type { GeocodeResult } from '../types';
+import { PRIX_ESSENCE_CONFIG } from '../config';
 
 export interface GeocodingProvider {
   geocode(query: string): Promise<GeocodeResult>;
@@ -14,7 +14,7 @@ export interface GeocodingProvider {
 /**
  * Provider Nominatim (gratuit, OpenStreetMap)
  */
-class NominatimProvider implements GeocodingProvider {
+export class NominatimProvider implements GeocodingProvider {
   private baseUrl: string;
   private userAgent: string;
 

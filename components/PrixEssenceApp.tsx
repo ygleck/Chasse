@@ -4,20 +4,20 @@
  * 100% autonome et portable
  */
 
+'use client';
+
 import React, { useEffect, useState, useCallback, useRef } from 'react';
-import type { GasStationWithScore, FuelType, RadiusOption, SearchResult } from '@/lib/prix-essence/types';
+import type { GasStationWithScore, RadiusOption, SearchResult } from '@/lib/prix-essence/types';
 import { PRIX_ESSENCE_CONFIG, API_ENDPOINTS } from '@/lib/prix-essence/config';
-import { FuelType as FuelEnum, RadiusOption as RadiusEnum } from '@/lib/prix-essence/types';
-import { formatPrice, formatDistance, formatDate, formatLocation } from '@/lib/prix-essence/utils/formatting';
-import { FUEL_TYPE_LABELS, RADIUS_LABELS } from '@/lib/prix-essence/types';
+import { formatPrice, formatDistance, formatLocation } from '@/lib/prix-essence/utils/formatting';
+import { FUEL_TYPE_LABELS, RADIUS_LABELS, FuelType } from '@/lib/prix-essence/types';
 import {
   addToHistory,
   getPreferences,
   updatePreferences,
-  getFavorites,
-  addFavorite,
-  removeFavorite,
-  isFavorite,
+  // addFavorite,
+  // removeFavorite,
+  // isFavorite,
 } from '@/lib/prix-essence/utils/storage';
 
 const MAP_PROVIDER_URL = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
@@ -30,13 +30,13 @@ interface MapInstance {
 
 export default function PrixEssenceApp() {
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedFuel, setSelectedFuel] = useState<FuelType>('all');
+  const [selectedFuel, setSelectedFuel] = useState<FuelType>(FuelType.ALL);
   const [selectedRadius, setSelectedRadius] = useState<RadiusOption>(20);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [results, setResults] = useState<SearchResult | null>(null);
-  const [userLocation, setUserLocation] = useState<{ lat: number; lon: number } | null>(null);
-  const [historyOpen, setHistoryOpen] = useState(false);
+  // const [userLocation, setUserLocation] = useState<{ lat: number; lon: number } | null>(null);
+  // const [historyOpen, setHistoryOpen] = useState(false);
   const mapRef = useRef<MapInstance | null>(null);
   const [activeStationId, setActiveStationId] = useState<string | null>(null);
 
@@ -144,7 +144,7 @@ export default function PrixEssenceApp() {
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const { latitude, longitude } = position.coords;
-        setUserLocation({ lat: latitude, lon: longitude });
+        // setUserLocation({ lat: latitude, lon: longitude });
 
         performSearch(latitude, longitude, selectedFuel, selectedRadius);
       },
@@ -158,6 +158,7 @@ export default function PrixEssenceApp() {
         setError(messages[String(err.code)] || 'Erreur géolocalisation');
       }
     );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedFuel, selectedRadius]);
 
   /**
@@ -237,18 +238,18 @@ export default function PrixEssenceApp() {
   /**
    * Ajouter/retirer des favoris
    */
-  const toggleFavorite = (station: GasStationWithScore) => {
-    if (isFavorite(station.id)) {
-      removeFavorite(station.id);
-    } else {
-      addFavorite({
-        stationId: station.id,
-        stationName: station.stationName,
-      });
-    }
-    // Force re-render
-    setActiveStationId(station.id);
-  };
+  // const toggleFavorite = (station: GasStationWithScore) => {
+  //   if (isFavorite(station.id)) {
+  //     removeFavorite(station.id);
+  //   } else {
+  //     addFavorite({
+  //       stationId: station.id,
+  //       stationName: station.stationName,
+  //     });
+  //   }
+  //   // Force re-render
+  //   setResults(prev => prev ? { ...prev } : null);
+  // };
 
   return (
     <div className="app">
@@ -401,7 +402,7 @@ export default function PrixEssenceApp() {
 
       {/* Attribution */}
       <div className="attribution">
-        <p>📊 Données issues de la Régie de l'énergie du Québec. Prix et disponibilité peuvent varier.</p>
+        <p>📊 Données issues de la Régie de l&apos;énergie du Québec. Prix et disponibilité peuvent varier.</p>
       </div>
     </div>
   );

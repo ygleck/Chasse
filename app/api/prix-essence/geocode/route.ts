@@ -4,7 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { NominatimProvider } from "@/lib/prix-essence/lib/geo/geocoder";
+import { NominatimProvider } from "@/lib/prix-essence/geo/geocoder";
 
 export async function POST(request: NextRequest) {
   try {

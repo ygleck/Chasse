@@ -4,9 +4,9 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { scoreStations } from "@/lib/prix-essence/lib/scoring/scoringEngine";
-import { calculateDistance, filterByRadius, addDistanceToStations } from "@/lib/prix-essence/lib/geo/distance";
-import { getCachedStations } from "@/lib/prix-essence/lib/cache/kvCache";
+import { scoreStations } from "@/lib/prix-essence/scoring/scoringEngine";
+import { calculateDistance, filterByRadius, addDistanceToStations } from "@/lib/prix-essence/geo/distance";
+import { getCachedStations } from "@/lib/prix-essence/cache/kvCache";
 import { AUTO_EXPAND_RADII } from "@/lib/prix-essence/config";
 
 export async function POST(request: NextRequest) {

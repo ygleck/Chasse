@@ -4,9 +4,9 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { cacheStations } from "@/lib/prix-essence/lib/cache/kvCache";
-import { fetchLatestXLSX } from "@/lib/prix-essence/lib/data/xlsxFetcher";
-import { parseXLSXData } from "@/lib/prix-essence/lib/data/xlsxParser";
+import { cacheStations } from "@/lib/prix-essence/cache/kvCache";
+import { fetchLatestXLSX } from "@/lib/prix-essence/data/xlsxFetcher";
+import { parseXLSXData } from "@/lib/prix-essence/data/xlsxParser";
 
 export async function POST(request: NextRequest) {
   try {

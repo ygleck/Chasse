@@ -17,7 +17,8 @@ import { createError, ERROR_CODES } from '../../modules/prix-essence/lib/utils/e
  * Vérifie le token d'autorisation (optionnel)
  */
 function verifyAuth(request: Request): boolean {
-  const secret = process.env.PRIX_ESSENCE_REFRESH_SECRET;
+  const env = (globalThis as any).process?.env as Record<string, string> | undefined;
+  const secret = env?.PRIX_ESSENCE_REFRESH_SECRET;
   if (!secret) return true; // Pas de protection si pas de secret
 
   const authHeader = request.headers.get('Authorization');

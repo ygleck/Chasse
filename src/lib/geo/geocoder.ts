@@ -2,7 +2,7 @@
  * Couche géocodage - Support pour Nominatim (gratuit) et Google Maps (optionnel)
  */
 
-import type { GeocodeResult } from '../types';
+import type { GeocodeResult } from '../../types';
 
 const NOMINATIM_URL = 'https://nominatim.openstreetmap.org/search';
 const NOMINATIM_REVERSE_URL = 'https://nominatim.openstreetmap.org/reverse';
@@ -154,7 +154,7 @@ class GoogleMapsProvider implements GeocodingProvider {
  * Factory pour obtenir le provider approprié
  */
 export function getGeocodingProvider(): GeocodingProvider {
-  const googleApiKey = process.env.GOOGLE_MAPS_API_KEY;
+  const googleApiKey = (globalThis as any).process?.env?.GOOGLE_MAPS_API_KEY as string | undefined;
 
   if (googleApiKey) {
     return new GoogleMapsProvider(googleApiKey);

@@ -17,7 +17,7 @@
  * Stations sans prix pour le carburant choisi : exclues
  */
 
-import type { GasStation, GasStationWithScore, SearchParams } from '../types';
+import type { GasStation, GasStationWithScore, SearchParams } from '../../types';
 
 /**
  * Configuration du scoring
@@ -65,6 +65,8 @@ function getPriceForFuel(
         station.premiumPrice,
       ].filter((p): p is number => p !== null && p > 0);
       return prices.length > 0 ? prices.reduce((a, b) => a + b) / prices.length : null;
+    default:
+      return null;
   }
 }
 

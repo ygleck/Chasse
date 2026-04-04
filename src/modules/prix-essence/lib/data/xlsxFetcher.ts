@@ -15,7 +15,8 @@ const OFFICIAL_SITE_URL = 'https://regieessencequebec.ca';
 export async function detectLatestXLSXUrl(): Promise<string> {
   try {
     // D'abord, vérifier env var
-    const overrideUrl = process.env.PRIX_ESSENCE_XLSX_URL;
+    const env = (globalThis as any).process?.env as Record<string, string> | undefined;
+    const overrideUrl = env?.PRIX_ESSENCE_XLSX_URL;
     if (overrideUrl) {
       console.log(`[PrixEssence] Using override XLSX URL: ${overrideUrl}`);
       return overrideUrl;
@@ -64,7 +65,8 @@ export async function detectLatestXLSXUrl(): Promise<string> {
     );
 
     // Fallback: si il y a un env de secours, l'utiliser
-    const fallbackUrl = process.env.PRIX_ESSENCE_XLSX_URL_FALLBACK;
+    const env = (globalThis as any).process?.env as Record<string, string> | undefined;
+    const fallbackUrl = env?.PRIX_ESSENCE_XLSX_URL_FALLBACK;
     if (fallbackUrl) {
       console.log(`[PrixEssence] Using fallback URL: ${fallbackUrl}`);
       return fallbackUrl;

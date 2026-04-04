@@ -4,15 +4,15 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { calculateDistance, addDistanceToStations } from '../lib/geo/distance';
+import { calculateDistance, addDistanceToStations } from '../../lib/geo/distance';
 import {
   scoreStations,
   getTopStations,
   getBestOption,
   calculateAveragePrice,
-} from '../lib/scoring/scoringEngine';
-import { detectColumnMapping, parseXLSXData } from '../lib/data/xlsxParser';
-import type { GasStation } from '../types';
+} from '../../lib/scoring/scoringEngine';
+import { detectColumnMapping, parseXLSXData } from '../../lib/data/xlsxParser';
+import type { GasStation } from '../../../types';
 
 describe('Distance - Haversine', () => {
   it('calcule la distance correctement', () => {
@@ -72,7 +72,12 @@ describe('Scoring Engine', () => {
   ];
 
   it('score les stations correctement', () => {
-    const scored = scoreStations(mockStations, 'regular');
+    const scored = scoreStations(mockStations, {
+      latitude: 45.5,
+      longitude: -73.5,
+      radius: 10,
+      fuelType: 'regular',
+    });
     expect(scored.length).toBe(2);
     // Station B (plus proche, moins cher) devrait avoir meilleur score
     expect(scored[0].id).toBe('2');
@@ -89,12 +94,22 @@ describe('Scoring Engine', () => {
       },
     ];
 
-    const scored = scoreStations(stationsNoPrices, 'regular');
+    const scored = scoreStations(stationsNoPrices, {
+      latitude: 45.5,
+      longitude: -73.5,
+      radius: 10,
+      fuelType: 'regular',
+    });
     expect(scored.length).toBe(0);
   });
 
   it('getTopStations retourne le N supérieur', () => {
-    let scored = scoreStations(mockStations, 'regular');
+    let scored = scoreStations(mockStations, {
+      latitude: 45.5,
+      longitude: -73.5,
+      radius: 10,
+      fuelType: 'regular',
+    });
     scored = [...scored, ...scored]; // Dupliquer pour avoir plus de 2
 
     const top = getTopStations(scored, 2);
@@ -102,13 +117,23 @@ describe('Scoring Engine', () => {
   });
 
   it('getBestOption retourne la première', () => {
-    const scored = scoreStations(mockStations, 'regular');
+    const scored = scoreStations(mockStations, {
+      latitude: 45.5,
+      longitude: -73.5,
+      radius: 10,
+      fuelType: 'regular',
+    });
     const best = getBestOption(scored);
     expect(best?.id).toBe(scored[0].id);
   });
 
   it('calculateAveragePrice fonctionne', () => {
-    const scored = scoreStations(mockStations, 'regular');
+    const scored = scoreStations(mockStations, {
+      latitude: 45.5,
+      longitude: -73.5,
+      radius: 10,
+      fuelType: 'regular',
+    });
     const avg = calculateAveragePrice(scored);
     expect(avg).toBeGreaterThan(0);
   });

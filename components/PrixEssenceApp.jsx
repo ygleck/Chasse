@@ -5,11 +5,11 @@
  */
 
 import React, { useEffect, useState, useCallback, useRef } from 'react';
-import type { GasStationWithScore, FuelType, RadiusOption, SearchResult } from '../types';
-import { PRIX_ESSENCE_CONFIG, API_ENDPOINTS } from '../config';
-import { FuelType as FuelEnum, RadiusOption as RadiusEnum } from '../types';
-import { formatPrice, formatDistance, formatDate, formatLocation } from '../lib/utils/formatting';
-import { FUEL_TYPE_LABELS, RADIUS_LABELS } from '../types';
+import type { GasStationWithScore, FuelType, RadiusOption, SearchResult } from '@/lib/prix-essence/types';
+import { PRIX_ESSENCE_CONFIG, API_ENDPOINTS } from '@/lib/prix-essence/config';
+import { FuelType as FuelEnum, RadiusOption as RadiusEnum } from '@/lib/prix-essence/types';
+import { formatPrice, formatDistance, formatDate, formatLocation } from '@/lib/prix-essence/utils/formatting';
+import { FUEL_TYPE_LABELS, RADIUS_LABELS } from '@/lib/prix-essence/types';
 import {
   addToHistory,
   getPreferences,
@@ -18,7 +18,7 @@ import {
   addFavorite,
   removeFavorite,
   isFavorite,
-} from '../lib/utils/storage';
+} from '@/lib/prix-essence/utils/storage';
 
 const MAP_PROVIDER_URL = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
 

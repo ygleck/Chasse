@@ -5,11 +5,9 @@
  */
 
 import React, { useEffect, useState, useCallback, useRef } from 'react';
-import type { GasStationWithScore, FuelType, RadiusOption, SearchResult } from '../types';
 import { PRIX_ESSENCE_CONFIG, API_ENDPOINTS } from '../config';
-import { FuelType as FuelEnum, RadiusOption as RadiusEnum } from '../types';
-import { formatPrice, formatDistance, formatDate, formatLocation } from '../lib/utils/formatting';
-import { FUEL_TYPE_LABELS, RADIUS_LABELS } from '../types';
+import { FuelType, FUEL_TYPE_LABELS, RADIUS_LABELS } from '../types';
+import { formatPrice, formatDistance, formatLocation } from '../lib/utils/formatting';
 import {
   addToHistory,
   getPreferences,
@@ -22,23 +20,17 @@ import {
 
 const MAP_PROVIDER_URL = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
 
-interface MapInstance {
-  L: any;
-  map: any;
-  markers: any[];
-}
-
 export default function PrixEssenceApp() {
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedFuel, setSelectedFuel] = useState<FuelType>('all');
-  const [selectedRadius, setSelectedRadius] = useState<RadiusOption>(20);
+  const [selectedFuel, setSelectedFuel] = useState(FuelType.ALL);
+  const [selectedRadius, setSelectedRadius] = useState(20);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [results, setResults] = useState<SearchResult | null>(null);
-  const [userLocation, setUserLocation] = useState<{ lat: number; lon: number } | null>(null);
+  const [error, setError] = useState(null);
+  const [results, setResults] = useState(null);
+  const [userLocation, setUserLocation] = useState(null);
   const [historyOpen, setHistoryOpen] = useState(false);
-  const mapRef = useRef<MapInstance | null>(null);
-  const [activeStationId, setActiveStationId] = useState<string | null>(null);
+  const mapRef = useRef(null);
+  const [activeStationId, setActiveStationId] = useState(null);
 
   // Charger les préférences au montage
   useEffect(() => {
@@ -55,7 +47,7 @@ export default function PrixEssenceApp() {
         script.src = MAP_PROVIDER_URL;
         script.async = true;
         script.onload = () => {
-          const L = (window as any).L;
+          const L = window.L;
           const map = L.map('map').setView([45.5017, -73.5673], 13);
 
           L.tileLayer(PRIX_ESSENCE_CONFIG.MAP.osmTile, {
@@ -150,7 +142,7 @@ export default function PrixEssenceApp() {
       },
       (err) => {
         setIsLoading(false);
-        const messages: Record<string, string> = {
+        const messages = {
           '1': 'Accès à votre position refusé',
           '2': 'Géolocalisation indisponible',
           '3': 'Délai d\'attente dépassé',
@@ -164,7 +156,7 @@ export default function PrixEssenceApp() {
    * Effectue la recherche
    */
   const performSearch = useCallback(
-    async (lat: number, lon: number, fuel: FuelType, radius: RadiusOption) => {
+    async (lat, lon, fuel, radius) => {
       try {
         const res = await fetch(
           `${API_ENDPOINTS.search}?latitude=${lat}&longitude=${lon}&radius=${radius}&fuelType=${fuel}`
@@ -193,7 +185,7 @@ export default function PrixEssenceApp() {
   /**
    * Met à jour la carte avec marqueurs
    */
-  const updateMap = (lat: number, lon: number, stations: GasStationWithScore[]) => {
+  const updateMap = (lat, lon, stations) => {
     if (!mapRef.current) return;
 
     const { L, map, markers } = mapRef.current;
@@ -226,7 +218,7 @@ export default function PrixEssenceApp() {
         setActiveStationId(station.id);
       });
 
-      mapRef.current!.markers.push(marker);
+      mapRef.current.markers.push(marker);
     });
 
     // Centrer la vue
@@ -237,7 +229,7 @@ export default function PrixEssenceApp() {
   /**
    * Ajouter/retirer des favoris
    */
-  const toggleFavorite = (station: GasStationWithScore) => {
+  const toggleFavorite = (station) => {
     if (isFavorite(station.id)) {
       removeFavorite(station.id);
     } else {
@@ -291,7 +283,7 @@ export default function PrixEssenceApp() {
                 className="select"
                 value={selectedFuel}
                 onChange={(e) => {
-                  const fuel = e.target.value as FuelType;
+                  const fuel = e.target.value;
                   setSelectedFuel(fuel);
                   updatePreferences(fuel, selectedRadius);
                 }}
@@ -310,7 +302,7 @@ export default function PrixEssenceApp() {
                 className="select"
                 value={selectedRadius}
                 onChange={(e) => {
-                  const radius = parseInt(e.target.value) as RadiusOption;
+                  const radius = parseInt(e.target.value, 10);
                   setSelectedRadius(radius);
                   updatePreferences(selectedFuel, radius);
                 }}

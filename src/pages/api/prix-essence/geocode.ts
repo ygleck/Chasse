@@ -6,9 +6,11 @@
  *   - query: string (adresse, code postal, ou ville)
  */
 
+/// <reference path="../../../../astro.d.ts" />
+
 import type { APIRoute } from 'astro';
-import { geocodeAddress } from '../../modules/prix-essence/lib/geo/geocoder';
-import { createError, ERROR_CODES } from '../../modules/prix-essence/lib/utils/errors';
+import { geocodeAddress } from '../../../modules/prix-essence/lib/geo/geocoder';
+import { createError, ERROR_CODES } from '../../../modules/prix-essence/lib/utils/errors';
 
 export const GET: APIRoute = async ({ url }) => {
   try {

@@ -7,11 +7,13 @@
  *   - Authorization: Bearer YOUR_SECRET (si configuré)
  */
 
+/// <reference path="../../../../astro.d.ts" />
+
 import type { APIRoute } from 'astro';
-import { detectLatestXLSXUrl, downloadXLSXFile } from '../../modules/prix-essence/lib/data/xlsxFetcher';
-import { parseXLSXData } from '../../modules/prix-essence/lib/data/xlsxParser';
-import { cacheStations, clearCache } from '../../modules/prix-essence/lib/cache/kvCache';
-import { createError, ERROR_CODES } from '../../modules/prix-essence/lib/utils/errors';
+import { detectLatestXLSXUrl, downloadXLSXFile } from '../../../modules/prix-essence/lib/data/xlsxFetcher';
+import { parseXLSXData } from '../../../modules/prix-essence/lib/data/xlsxParser';
+import { cacheStations, clearCache } from '../../../modules/prix-essence/lib/cache/kvCache';
+import { createError, ERROR_CODES } from '../../../modules/prix-essence/lib/utils/errors';
 
 /**
  * Vérifie le token d'autorisation (optionnel)

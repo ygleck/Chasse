@@ -1,0 +1,26 @@
+{
+  "name": "Prix Essence Québec",
+  "short_name": "Prix Essence",
+  "description": "Trouvez les stations-service avec les meilleurs prix près de chez vous au Québec",
+  "start_url": "/prix-essence",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ff6b35",
+  "orientation": "portrait-primary",
+  "categories": ["utilities", "productivity"],
+  "lang": "fr-CA",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -133,17 +133,21 @@ function normalizeRow(
     switch (normalizedField) {
       case 'latitude':
       case 'longitude':
-        value = parseFloat(String(value));
-        if (isNaN(value)) value = undefined;
+        {
+          const numericValue = parseFloat(String(value));
+          value = isNaN(numericValue) ? undefined : numericValue;
+        }
         break;
 
       case 'regularPrice':
       case 'dieselPrice':
       case 'premiumPrice':
         // Nettoyer le prix (peut être "1.23" ou "1,23" en français)
-        const priceStr = String(value).replace(',', '.');
-        value = parseFloat(priceStr);
-        if (isNaN(value) || value <= 0) value = null;
+        {
+          const priceStr = String(value).replace(',', '.');
+          const numericPrice = parseFloat(priceStr);
+          value = isNaN(numericPrice) || numericPrice <= 0 ? null : numericPrice;
+        }
         break;
 
       case 'updatedAt':

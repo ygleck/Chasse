@@ -2,6 +2,8 @@
  * Configuration Vitest pour les tests Prix Essence
  */
 
+/// <reference path="./vitest.d.ts" />
+
 import { defineConfig } from 'vitest/config';
 
 export default defineConfig({

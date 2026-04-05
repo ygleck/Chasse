@@ -17,6 +17,14 @@ import { PRIX_ESSENCE_CONFIG } from '../modules/prix-essence/config';
     <meta name="description" content="Trouvez les stations-service avec les meilleurs prix près de chez vous au Québec" />
     <meta name="robots" content="index, follow" />
     
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#ff6b35" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Prix Essence" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <link rel="manifest" href="/manifest.json" />
+    
     <!-- Styles -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
@@ -51,6 +59,13 @@ import { PRIX_ESSENCE_CONFIG } from '../modules/prix-essence/config';
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         padding: 1.5rem 2rem;
         border-bottom: 3px solid #ff6b35;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .header-content {
+        flex: 1;
       }
 
       .header h1 {
@@ -62,6 +77,27 @@ import { PRIX_ESSENCE_CONFIG } from '../modules/prix-essence/config';
       .header p {
         color: #7f8c8d;
         font-size: 0.95rem;
+      }
+
+      .download-btn {
+        background: #ff6b35;
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        transition: all 0.3s;
+        box-shadow: 0 2px 4px rgba(255, 107, 53, 0.3);
+      }
+
+      .download-btn:hover {
+        background: #e55a25;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(255, 107, 53, 0.4);
       }
 
       /* Main Container */
@@ -392,7 +428,53 @@ import { PRIX_ESSENCE_CONFIG } from '../modules/prix-essence/config';
     </style>
   </head>
   <body>
+    <!-- Header avec bouton de téléchargement -->
+    <header class="header">
+      <div class="header-content">
+        <h1>Prix Essence Québec</h1>
+        <p>Trouvez les meilleures stations-service près de chez vous</p>
+      </div>
+      <a href="#" class="download-btn" onclick="installApp()">
+        📱 Télécharger l'App
+      </a>
+    </header>
+
     <div id="root"></div>
+
+    <script>
+      // Fonction d'installation PWA
+      function installApp() {
+        if ('serviceWorker' in navigator && 'caches' in window) {
+          // Pour PWA - on peut ajouter plus tard
+          alert('L\'app est déjà installée ! Utilisez "Ajouter à l\'écran d\'accueil" dans votre navigateur.');
+        } else {
+          // Fallback - ouvrir dans un nouvel onglet
+          window.open(window.location.href, '_blank');
+        }
+      }
+
+      // Détection PWA
+      let deferredPrompt;
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        
+        // Montrer le bouton d'installation
+        const btn = document.querySelector('.download-btn');
+        if (btn) {
+          btn.style.display = 'inline-block';
+          btn.onclick = () => {
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then((choiceResult) => {
+              if (choiceResult.outcome === 'accepted') {
+                console.log('User accepted the install prompt');
+              }
+              deferredPrompt = null;
+            });
+          };
+        }
+      });
+    </script>
 
     <script type="module">
       import App from '../modules/prix-essence/components/PrixEssenceApp.jsx';

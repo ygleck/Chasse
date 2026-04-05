@@ -10,13 +10,15 @@
  *   - autoExpand: boolean (default: true) - élargir le rayon si aucun résultat
  */
 
+/// <reference path="../../../../astro.d.ts" />
+
 import type { APIRoute } from 'astro';
-import type { GasStation, FuelType } from '../../modules/prix-essence/types';
-import { addDistanceToStations } from '../../modules/prix-essence/lib/geo/distance';
-import { scoreStations, getTopStations, getBestOption, calculateAveragePrice } from '../../modules/prix-essence/lib/scoring/scoringEngine';
-import { getCachedStations } from '../../modules/prix-essence/lib/cache/kvCache';
-import { PRIX_ESSENCE_CONFIG } from '../../modules/prix-essence/config';
-import { createError, ERROR_CODES } from '../../modules/prix-essence/lib/utils/errors';
+import type { GasStation, FuelType } from '../../../modules/prix-essence/types';
+import { addDistanceToStations } from '../../../modules/prix-essence/lib/geo/distance';
+import { scoreStations, getTopStations, getBestOption, calculateAveragePrice } from '../../../modules/prix-essence/lib/scoring/scoringEngine';
+import { getCachedStations } from '../../../modules/prix-essence/lib/cache/kvCache';
+import { PRIX_ESSENCE_CONFIG } from '../../../modules/prix-essence/config';
+import { createError, ERROR_CODES } from '../../../modules/prix-essence/lib/utils/errors';
 
 /**
  * Valide les paramètres de recherche

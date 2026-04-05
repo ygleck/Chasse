@@ -1,20 +1,5 @@
 #:schema node_modules/wrangler/config-schema.json
-name = "prix-essence-quebec"
-main = "src/index.ts"
+name = "prix-essence-codex"
 compatibility_date = "2026-04-05"
-
-[env.production]
-name = "prix-essence-quebec"
-route = ""
-zone_name = ""
-
-# Configuration pour Pages
 pages_build_output_dir = "dist"
 
-[build]
-command = "npm run build"
-cwd = "./"
-watch_paths = ["src/**/*.astro", "src/**/*.tsx", "src/**/*.ts"]
-
-[env.pages]
-pages_build_output_dir = "dist"

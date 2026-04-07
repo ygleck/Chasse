@@ -49,6 +49,26 @@ export interface GeocodeResult {
   postalCode?: string;
 }
 
+export type SearchInputType = 'postalCode' | 'address' | 'city';
+
+export interface AutocompleteSuggestion {
+  id: string;
+  label: string;
+  primaryText: string;
+  secondaryText: string;
+  latitude: number;
+  longitude: number;
+  city: string;
+  postalCode?: string;
+  inputType: SearchInputType;
+  queryKey: string;
+}
+
+export interface ResolvedSearchLocation extends GeocodeResult {
+  inputType: SearchInputType;
+  provider: 'photon' | 'nominatim' | 'backend';
+}
+
 export interface XLSXRawData {
   [key: string]: unknown;
 }

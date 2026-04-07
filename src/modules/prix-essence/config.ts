@@ -31,6 +31,20 @@ export const PRIX_ESSENCE_CONFIG = {
     userAgent: 'PrixEssenceQC/1.0 (+https://prixessencequebec.example.com)',
   },
 
+  SEARCH_ASSIST: {
+    debounceMs: 400,
+    minAutocompleteChars: 3,
+    maxSuggestions: 6,
+    cacheTtlMs: 5 * 60 * 1000,
+    photonUrl: 'https://photon.komoot.io/api',
+    // Borne le moteur au Québec pour éviter les faux positifs hors sujet.
+    quebecBbox: [-79.85, 44.99, -57.1, 62.62],
+    defaultState: 'Quebec',
+    defaultCountry: 'Canada',
+    defaultCountryCode: 'ca',
+    locale: 'fr',
+  },
+
   // Leaflet / OpenStreetMap (cartographie gratuite)
   MAP: {
     defaultProvider: 'openstreetmap', // 'openstreetmap' ou 'google'

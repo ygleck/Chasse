@@ -39,6 +39,10 @@ Valeurs supportées :
 
 - `API_BASE_URL`
 - `MAP_PROVIDER`
+- `MAP_TILE_TEMPLATE`
+- `MAP_TILE_SUBDOMAINS`
+- `MAP_ATTRIBUTION_LABEL`
+- `MAP_ATTRIBUTION_URL`
 
 Exemple :
 
@@ -50,6 +54,8 @@ Par défaut, l'app utilise :
 
 - API : `https://prix-essence-codex.ygleck.workers.dev`
 - carte : OpenStreetMap via `flutter_map`
+- tuiles : `https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png`
+- sous-domaines : `a,b,c`
 
 ## Lancer l'application
 

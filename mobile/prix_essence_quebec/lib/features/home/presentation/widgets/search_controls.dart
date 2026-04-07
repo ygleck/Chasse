@@ -9,6 +9,7 @@ class SearchControls extends StatelessWidget {
     required this.onQueryChanged,
     required this.onSubmit,
     required this.onLocate,
+    required this.onOpenLocationSettings,
     required this.onFuelChanged,
     required this.onRadiusChanged,
     required this.selectedFuel,
@@ -22,6 +23,7 @@ class SearchControls extends StatelessWidget {
   final ValueChanged<String> onQueryChanged;
   final VoidCallback onSubmit;
   final VoidCallback onLocate;
+  final VoidCallback onOpenLocationSettings;
   final ValueChanged<FuelType> onFuelChanged;
   final ValueChanged<int> onRadiusChanged;
   final FuelType selectedFuel;
@@ -136,6 +138,15 @@ class SearchControls extends StatelessWidget {
               ),
             ),
           ],
+        ),
+        const SizedBox(height: 10),
+        Align(
+          alignment: Alignment.centerRight,
+          child: TextButton.icon(
+            onPressed: onOpenLocationSettings,
+            icon: const Icon(Icons.settings_rounded),
+            label: const Text('Reglages localisation'),
+          ),
         ),
       ],
     );

@@ -29,7 +29,7 @@ class PrixEssenceApiService {
     final ok = payload['ok'] as bool? ?? false;
 
     if (!ok) {
-      final error = payload['error'] as Map<String, dynamic>? ?? const {};
+      final error = _asJsonMap(payload['error']) ?? const {};
       throw ApiException(
         message: error['message'] as String? ??
             'Le serveur a retourné une erreur inconnue.',
@@ -37,13 +37,27 @@ class PrixEssenceApiService {
       );
     }
 
-    final data = payload['data'];
-    if (data is! Map<String, dynamic>) {
+    final data = _asJsonMap(payload['data']);
+    if (data == null) {
       throw const ApiException(
         message: 'Le format de réponse du serveur est invalide.',
       );
     }
 
     return parser(data);
+  }
+
+  Map<String, dynamic>? _asJsonMap(dynamic value) {
+    if (value is Map<String, dynamic>) {
+      return value;
+    }
+
+    if (value is Map) {
+      return value.map(
+        (key, nestedValue) => MapEntry(key.toString(), nestedValue),
+      );
+    }
+
+    return null;
   }
 }

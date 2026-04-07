@@ -21,6 +21,20 @@ class RecentSearch {
   final FuelType fuelType;
   final int radiusKm;
 
+  String get deduplicationKey {
+    final normalizedQuery = _normalizeSearchKey(query);
+    if (normalizedQuery.isNotEmpty) {
+      return 'query:$normalizedQuery';
+    }
+
+    final normalizedLabel = _normalizeSearchKey(label);
+    if (normalizedLabel.isNotEmpty) {
+      return 'label:$normalizedLabel';
+    }
+
+    return 'coords:${latitude.toStringAsFixed(4)},${longitude.toStringAsFixed(4)}';
+  }
+
   factory RecentSearch.fromJson(Map<String, dynamic> json) {
     return RecentSearch(
       id: json['id'] as String,
@@ -49,15 +63,45 @@ class RecentSearch {
     required SearchRequest request,
     required SearchResultModel result,
   }) {
+    final label = result.resolvedLocation.label;
+    final query = request.query;
+
     return RecentSearch(
-      id:
-          '${request.query ?? result.resolvedLocation.label}-${result.resolvedLocation.latitude}-${result.resolvedLocation.longitude}-${request.fuelType.apiValue}-${request.radiusKm}',
-      label: result.resolvedLocation.label,
-      query: request.query,
+      id: _buildDeduplicationKey(
+        label: label,
+        query: query,
+        latitude: result.resolvedLocation.latitude,
+        longitude: result.resolvedLocation.longitude,
+      ),
+      label: label,
+      query: query,
       latitude: result.resolvedLocation.latitude,
       longitude: result.resolvedLocation.longitude,
       fuelType: request.fuelType,
       radiusKm: request.radiusKm,
     );
+  }
+
+  static String _buildDeduplicationKey({
+    required String label,
+    required String? query,
+    required double latitude,
+    required double longitude,
+  }) {
+    final normalizedQuery = _normalizeSearchKey(query);
+    if (normalizedQuery.isNotEmpty) {
+      return 'query:$normalizedQuery';
+    }
+
+    final normalizedLabel = _normalizeSearchKey(label);
+    if (normalizedLabel.isNotEmpty) {
+      return 'label:$normalizedLabel';
+    }
+
+    return 'coords:${latitude.toStringAsFixed(4)},${longitude.toStringAsFixed(4)}';
+  }
+
+  static String _normalizeSearchKey(String? value) {
+    return (value ?? '').trim().toLowerCase().replaceAll(RegExp(r'\s+'), ' ');
   }
 }

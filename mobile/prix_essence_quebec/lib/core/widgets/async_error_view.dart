@@ -7,10 +7,12 @@ class AsyncErrorView extends StatelessWidget {
     super.key,
     required this.message,
     this.onRetry,
+    this.onOpenSettings,
   });
 
   final String message;
   final VoidCallback? onRetry;
+  final VoidCallback? onOpenSettings;
 
   @override
   Widget build(BuildContext context) {
@@ -35,14 +37,28 @@ class AsyncErrorView extends StatelessWidget {
               ),
             ],
           ),
-          if (onRetry != null) ...[
+          if (onRetry != null || onOpenSettings != null) ...[
             const SizedBox(height: 16),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: onRetry,
-                child: const Text('Réessayer'),
-              ),
+            Row(
+              children: [
+                if (onOpenSettings != null)
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: onOpenSettings,
+                      icon: const Icon(Icons.settings_rounded),
+                      label: const Text('Ouvrir les réglages'),
+                    ),
+                  ),
+                if (onOpenSettings != null && onRetry != null)
+                  const SizedBox(width: 12),
+                if (onRetry != null)
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: onRetry,
+                      child: const Text('Réessayer'),
+                    ),
+                  ),
+              ],
             ),
           ],
         ],

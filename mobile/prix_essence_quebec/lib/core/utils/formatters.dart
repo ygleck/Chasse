@@ -29,7 +29,11 @@ String formatDate(DateTime? value) {
     return 'Date inconnue';
   }
 
-  return DateFormat('d MMM yyyy, HH:mm', 'fr_CA').format(value);
+  try {
+    return DateFormat('d MMM yyyy, HH:mm', 'fr_CA').format(value);
+  } catch (_) {
+    return DateFormat('yyyy-MM-dd HH:mm').format(value.toLocal());
+  }
 }
 
 String fuelLabel(FuelType fuelType) => fuelType.label;

@@ -13,7 +13,7 @@ import '../../../services/location/location_service.dart';
 import 'home_state.dart';
 
 class HomeController extends Notifier<HomeState> {
-  bool _statusRequested = false;
+  bool _statusLoading = false;
 
   @override
   HomeState build() {
@@ -30,20 +30,22 @@ class HomeController extends Notifier<HomeState> {
       favorites: storage.readFavorites(),
     );
 
-    if (!_statusRequested) {
-      _statusRequested = true;
-      Future<void>.microtask(_loadStatus);
-    }
-
     return initialState;
   }
 
   Future<void> _loadStatus() async {
+    if (_statusLoading) {
+      return;
+    }
+
+    _statusLoading = true;
     try {
       final status = await ref.read(prixEssenceApiServiceProvider).fetchStatus();
       state = state.copyWith(status: status);
     } catch (_) {
       // Le statut sert surtout à enrichir l'UI. On garde l'app utilisable même s'il échoue.
+    } finally {
+      _statusLoading = false;
     }
   }
 
@@ -51,6 +53,7 @@ class HomeController extends Notifier<HomeState> {
     state = state.copyWith(
       query: value,
       errorMessage: null,
+      showLocationSettingsShortcut: false,
     );
   }
 
@@ -58,6 +61,7 @@ class HomeController extends Notifier<HomeState> {
     state = state.copyWith(
       fuelType: value,
       errorMessage: null,
+      showLocationSettingsShortcut: false,
     );
     await _persistPreferences();
     await _rerunCurrentSearch();
@@ -67,6 +71,7 @@ class HomeController extends Notifier<HomeState> {
     state = state.copyWith(
       radiusKm: value,
       errorMessage: null,
+      showLocationSettingsShortcut: false,
     );
     await _persistPreferences();
     await _rerunCurrentSearch();
@@ -78,6 +83,7 @@ class HomeController extends Notifier<HomeState> {
       state = state.copyWith(
         errorMessage:
             'Entre une adresse, un code postal ou une ville pour lancer la recherche.',
+        showLocationSettingsShortcut: false,
       );
       return;
     }
@@ -97,6 +103,7 @@ class HomeController extends Notifier<HomeState> {
     state = state.copyWith(
       isLocating: true,
       errorMessage: null,
+      showLocationSettingsShortcut: false,
     );
 
     try {
@@ -109,10 +116,18 @@ class HomeController extends Notifier<HomeState> {
         ),
       );
     } on LocationServiceException catch (error) {
-      state = state.copyWith(errorMessage: error.message);
+      state = state.copyWith(
+        errorMessage: error.message,
+        showLocationSettingsShortcut:
+            error.code != LocationServiceErrorCode.permissionDenied,
+      );
     } finally {
       state = state.copyWith(isLocating: false);
     }
+  }
+
+  Future<void> openLocationSettings() async {
+    await ref.read(locationServiceProvider).openRelevantSettings();
   }
 
   Future<void> applyRecentSearch(RecentSearch recentSearch) async {
@@ -121,6 +136,7 @@ class HomeController extends Notifier<HomeState> {
       fuelType: recentSearch.fuelType,
       radiusKm: recentSearch.radiusKm,
       errorMessage: null,
+      showLocationSettingsShortcut: false,
     );
 
     await _persistPreferences();
@@ -168,10 +184,20 @@ class HomeController extends Notifier<HomeState> {
     state = state.copyWith(
       isSearching: true,
       errorMessage: null,
+      showLocationSettingsShortcut: false,
     );
 
     try {
-      final result = await ref.read(prixEssenceApiServiceProvider).search(request);
+      final result = await ref
+          .read(prixEssenceApiServiceProvider)
+          .search(request)
+          .timeout(
+            const Duration(seconds: 25),
+            onTimeout: () => throw const ApiException(
+              message:
+                  'La recherche a pris trop de temps. Réessaie ou vérifie ta connexion Internet.',
+            ),
+          );
       final recentSearches = await ref.read(localStorageServiceProvider).saveRecentSearch(
             RecentSearch.fromSearch(
               request: request,
@@ -191,17 +217,24 @@ class HomeController extends Notifier<HomeState> {
             (result.topStations.isNotEmpty ? result.topStations.first.id : null),
         isSearching: false,
         errorMessage: null,
+        showLocationSettingsShortcut: false,
         lastRequest: request,
       );
+
+      if (state.status == null) {
+        Future<void>.delayed(const Duration(milliseconds: 800), _loadStatus);
+      }
     } on ApiException catch (error) {
       state = state.copyWith(
         isSearching: false,
         errorMessage: error.message,
+        showLocationSettingsShortcut: false,
       );
     } catch (_) {
       state = state.copyWith(
         isSearching: false,
         errorMessage: 'Une erreur inattendue est survenue.',
+        showLocationSettingsShortcut: false,
       );
     }
   }

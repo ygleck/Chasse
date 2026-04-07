@@ -36,10 +36,7 @@ class LocalStorageService {
   }
 
   List<FavoriteStation> readFavorites() {
-    return _decodeList(
-      _favoritesKey,
-      FavoriteStation.fromJson,
-    );
+    return _decodeList(_favoritesKey, FavoriteStation.fromJson);
   }
 
   Future<List<FavoriteStation>> toggleFavorite(Station station) async {
@@ -47,10 +44,7 @@ class LocalStorageService {
     final exists = current.any((item) => item.stationId == station.id);
     final next = exists
         ? current.where((item) => item.stationId != station.id).toList()
-        : <FavoriteStation>[
-            FavoriteStation.fromStation(station),
-            ...current,
-          ];
+        : <FavoriteStation>[FavoriteStation.fromStation(station), ...current];
 
     await _writeList(
       _favoritesKey,
@@ -81,9 +75,7 @@ class LocalStorageService {
       return current;
     }
 
-    final stationMap = {
-      for (final station in stations) station.id: station,
-    };
+    final stationMap = {for (final station in stations) station.id: station};
 
     final next = current
         .map((favorite) {
@@ -101,18 +93,20 @@ class LocalStorageService {
   }
 
   List<RecentSearch> readRecentSearches() {
-    return _decodeList(
-      _recentSearchesKey,
-      RecentSearch.fromJson,
+    return _deduplicateRecentSearches(
+      _decodeList(_recentSearchesKey, RecentSearch.fromJson),
     );
   }
 
   Future<List<RecentSearch>> saveRecentSearch(RecentSearch item) async {
     final current = readRecentSearches();
-    final filtered = current.where((entry) => entry.id != item.id).toList();
-    final next = <RecentSearch>[item, ...filtered]
-        .take(recentSearchLimit)
-        .toList(growable: false);
+    final filtered = current
+        .where((entry) => entry.deduplicationKey != item.deduplicationKey)
+        .toList();
+    final next = <RecentSearch>[
+      item,
+      ...filtered,
+    ].take(recentSearchLimit).toList(growable: false);
 
     await _writeList(
       _recentSearchesKey,
@@ -122,10 +116,20 @@ class LocalStorageService {
     return next;
   }
 
-  List<T> _decodeList<T>(
-    String key,
-    T Function(Map<String, dynamic>) parser,
-  ) {
+  List<RecentSearch> _deduplicateRecentSearches(List<RecentSearch> entries) {
+    final seenKeys = <String>{};
+    final deduplicated = <RecentSearch>[];
+
+    for (final entry in entries) {
+      if (seenKeys.add(entry.deduplicationKey)) {
+        deduplicated.add(entry);
+      }
+    }
+
+    return deduplicated.take(recentSearchLimit).toList(growable: false);
+  }
+
+  List<T> _decodeList<T>(String key, T Function(Map<String, dynamic>) parser) {
     final raw = _preferences.getString(key);
     if (raw == null || raw.isEmpty) {
       return const [];

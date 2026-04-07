@@ -1,5 +1,4 @@
 import 'package:geolocator/geolocator.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 import '../../models/search_location.dart';
 
@@ -8,20 +7,29 @@ class LocationService {
     final isServiceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!isServiceEnabled) {
       throw const LocationServiceException(
-        'La localisation de l’appareil est désactivée.',
+        code: LocationServiceErrorCode.serviceDisabled,
+        message: 'La localisation de l’appareil est désactivée.',
       );
     }
 
-    final permission = await Permission.locationWhenInUse.request();
-    if (permission.isPermanentlyDenied) {
+    var permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+    }
+
+    if (permission == LocationPermission.deniedForever) {
       throw const LocationServiceException(
-        'La permission de localisation a été refusée de façon permanente. Active-la dans les réglages.',
+        code: LocationServiceErrorCode.permissionPermanentlyDenied,
+        message:
+            'La permission de localisation a été refusée de façon permanente. Active-la dans les réglages.',
       );
     }
 
-    if (!permission.isGranted) {
+    if (permission == LocationPermission.denied ||
+        permission == LocationPermission.unableToDetermine) {
       throw const LocationServiceException(
-        'La permission de localisation a été refusée.',
+        code: LocationServiceErrorCode.permissionDenied,
+        message: 'La permission de localisation a été refusée.',
       );
     }
 
@@ -38,11 +46,28 @@ class LocationService {
       source: 'geolocation',
     );
   }
+
+  Future<void> openRelevantSettings() async {
+    final openedAppSettings = await Geolocator.openAppSettings();
+    if (!openedAppSettings) {
+      await Geolocator.openLocationSettings();
+    }
+  }
+}
+
+enum LocationServiceErrorCode {
+  serviceDisabled,
+  permissionDenied,
+  permissionPermanentlyDenied,
 }
 
 class LocationServiceException implements Exception {
-  const LocationServiceException(this.message);
+  const LocationServiceException({
+    required this.code,
+    required this.message,
+  });
 
+  final LocationServiceErrorCode code;
   final String message;
 
   @override

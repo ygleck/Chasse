@@ -18,6 +18,7 @@ class HomeState {
     required this.isSearching,
     required this.isLocating,
     required this.errorMessage,
+    required this.showLocationSettingsShortcut,
     required this.lastRequest,
   });
 
@@ -34,6 +35,7 @@ class HomeState {
   final bool isSearching;
   final bool isLocating;
   final String? errorMessage;
+  final bool showLocationSettingsShortcut;
   final SearchRequest? lastRequest;
 
   bool get isRefreshing => isSearching && result != null;
@@ -50,6 +52,7 @@ class HomeState {
     bool? isSearching,
     bool? isLocating,
     Object? errorMessage = _unset,
+    bool? showLocationSettingsShortcut,
     Object? lastRequest = _unset,
   }) {
     return HomeState(
@@ -70,6 +73,8 @@ class HomeState {
       errorMessage: identical(errorMessage, _unset)
           ? this.errorMessage
           : errorMessage as String?,
+      showLocationSettingsShortcut:
+          showLocationSettingsShortcut ?? this.showLocationSettingsShortcut,
       lastRequest: identical(lastRequest, _unset)
           ? this.lastRequest
           : lastRequest as SearchRequest?,
@@ -94,6 +99,7 @@ class HomeState {
       isSearching: false,
       isLocating: false,
       errorMessage: null,
+      showLocationSettingsShortcut: false,
       lastRequest: null,
     );
   }

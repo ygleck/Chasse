@@ -60,10 +60,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFFF8F5EE),
-              Color(0xFFF1ECE3),
-            ],
+            colors: [Color(0xFFF8F5EE), Color(0xFFF1ECE3)],
           ),
         ),
         child: SafeArea(
@@ -95,6 +92,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                 onQueryChanged: controller.setQuery,
                                 onSubmit: controller.searchFromQuery,
                                 onLocate: controller.searchFromCurrentLocation,
+                                onOpenLocationSettings:
+                                    controller.openLocationSettings,
                                 onFuelChanged: controller.setFuelType,
                                 onRadiusChanged: controller.setRadiusKm,
                                 selectedFuel: state.fuelType,
@@ -107,7 +106,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                               _StatusStrip(
                                 cacheBackend: state.status?.cacheBackend,
                                 isStale: state.status?.stale ?? false,
-                                stationCount: state.status?.metadata?.stationCount,
+                                stationCount:
+                                    state.status?.metadata?.stationCount,
                               ),
                             ],
                           ),
@@ -122,6 +122,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           const SizedBox(height: 16),
                           AsyncErrorView(
                             message: state.errorMessage!,
+                            onOpenSettings: state.showLocationSettingsShortcut
+                                ? controller.openLocationSettings
+                                : null,
                             onRetry: state.lastRequest == null
                                 ? null
                                 : () => _retry(controller, state),
@@ -135,11 +138,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                 SizedBox(
                                   width: 20,
                                   height: 20,
-                                  child: CircularProgressIndicator(strokeWidth: 2.5),
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2.5,
+                                  ),
                                 ),
                                 SizedBox(width: 12),
                                 Expanded(
-                                  child: Text('Mise à jour des résultats en cours…'),
+                                  child: Text(
+                                    'Mise à jour des résultats en cours…',
+                                  ),
                                 ),
                               ],
                             ),
@@ -170,7 +177,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           _BestOptionCard(
                             station: selectedStation,
                             resolvedLabel: result.resolvedLocation.label,
-                            isBestOption: selectedStation?.id == result.bestOption?.id,
+                            isBestOption:
+                                selectedStation?.id == result.bestOption?.id,
                           ),
                           const SizedBox(height: 16),
                           if (isTablet)
@@ -181,7 +189,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                   flex: 14,
                                   child: MapPanel(
                                     mapProvider: appConfig.mapProvider,
-                                    stations: result.topStations,
+                                    tileUrlTemplate: appConfig.mapTileTemplate,
+                                    tileSubdomains: appConfig.mapTileSubdomains,
+                                    attributionLabel:
+                                        appConfig.mapAttributionLabel,
+                                    attributionUrl: appConfig.mapAttributionUrl,
+                                    stations: result.stationsInRadius,
                                     origin: result.resolvedLocation,
                                     selectedStationId: state.selectedStationId,
                                     onStationTap: controller.selectStation,
@@ -207,7 +220,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           else ...[
                             MapPanel(
                               mapProvider: appConfig.mapProvider,
-                              stations: result.topStations,
+                              tileUrlTemplate: appConfig.mapTileTemplate,
+                              tileSubdomains: appConfig.mapTileSubdomains,
+                              attributionLabel: appConfig.mapAttributionLabel,
+                              attributionUrl: appConfig.mapAttributionUrl,
+                              stations: result.stationsInRadius,
                               origin: result.resolvedLocation,
                               selectedStationId: state.selectedStationId,
                               onStationTap: controller.selectStation,
@@ -281,7 +298,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ),
           const SizedBox(height: 12),
           if (state.favorites.isEmpty)
-            const Text('Ajoute une station depuis les résultats pour la retrouver ici.')
+            const Text(
+              'Ajoute une station depuis les résultats pour la retrouver ici.',
+            )
           else
             Column(
               children: state.favorites
@@ -292,8 +311,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         favorite: favorite,
                         selectedFuel: state.fuelType,
                         origin: state.result?.resolvedLocation,
-                        liveStation: controller.findFavoriteLiveStation(favorite),
-                        onRemove: () => controller.removeFavorite(favorite.stationId),
+                        liveStation: controller.findFavoriteLiveStation(
+                          favorite,
+                        ),
+                        onRemove: () =>
+                            controller.removeFavorite(favorite.stationId),
                       ),
                     ),
                   )
@@ -305,11 +327,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
     if (!isTablet) {
       return Column(
-        children: [
-          recentCard,
-          const SizedBox(height: 16),
-          favoritesCard,
-        ],
+        children: [recentCard, const SizedBox(height: 16), favoritesCard],
       );
     }
 
@@ -356,9 +374,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 }
 
 class _HeroBanner extends StatelessWidget {
-  const _HeroBanner({
-    required this.status,
-  });
+  const _HeroBanner({required this.status});
 
   final StatusModel? status;
 
@@ -372,10 +388,7 @@ class _HeroBanner extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(30),
         gradient: const LinearGradient(
-          colors: [
-            Color(0xFF1C4F6B),
-            Color(0xFF255F7D),
-          ],
+          colors: [Color(0xFF1C4F6B), Color(0xFF255F7D)],
         ),
         boxShadow: [
           BoxShadow(
@@ -512,9 +525,9 @@ class _BestOptionCard extends StatelessWidget {
           const SizedBox(height: 12),
           Text(
             station!.stationName,
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w900,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w900),
           ),
           const SizedBox(height: 10),
           Wrap(
@@ -534,7 +547,9 @@ class _BestOptionCard extends StatelessWidget {
               _KeyFigure(
                 label: 'Mise à jour',
                 value: formatDate(station!.updatedAt),
-                note: station!.banner.isEmpty ? 'Bannière non fournie' : station!.banner,
+                note: station!.banner.isEmpty
+                    ? 'Bannière non fournie'
+                    : station!.banner,
               ),
             ],
           ),
@@ -576,9 +591,9 @@ class _TopStationsPanel extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             'Classement selon le meilleur compromis prix + proximité.',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: const Color(0xFF5F7480),
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(color: const Color(0xFF5F7480)),
           ),
           const SizedBox(height: 16),
           ...stations.map(
@@ -601,10 +616,7 @@ class _TopStationsPanel extends StatelessWidget {
 }
 
 class _SectionTitle extends StatelessWidget {
-  const _SectionTitle({
-    required this.title,
-    required this.trailing,
-  });
+  const _SectionTitle({required this.title, required this.trailing});
 
   final String title;
   final String trailing;
@@ -616,9 +628,9 @@ class _SectionTitle extends StatelessWidget {
         Expanded(
           child: Text(
             title,
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w900,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900),
           ),
         ),
         Container(
@@ -661,24 +673,24 @@ class _KeyFigure extends StatelessWidget {
           Text(
             label.toUpperCase(),
             style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                  color: const Color(0xFF5F7480),
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 0.5,
-                ),
+              color: const Color(0xFF5F7480),
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0.5,
+            ),
           ),
           const SizedBox(height: 2),
           Text(
             value,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w900,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w900),
           ),
           const SizedBox(height: 2),
           Text(
             note,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: const Color(0xFF5F7480),
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(color: const Color(0xFF5F7480)),
           ),
         ],
       ),
